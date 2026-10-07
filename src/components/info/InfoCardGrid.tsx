@@ -1,8 +1,8 @@
-import type { InfoItem } from "@/lib/dummy-data";
+import type { CaseSummary } from "@/lib/cases";
 import { InfoCard } from "./InfoCard";
 
 type Props = {
-  items: InfoItem[];
+  items: CaseSummary[];
   showCategory?: boolean;
 };
 
@@ -18,7 +18,7 @@ export function InfoCardGrid({ items, showCategory = false }: Props) {
   return (
     <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
       {items.map((item) => (
-        <li key={item.id}>
+        <li key={item.key}>
           <InfoCard item={item} showCategory={showCategory} />
         </li>
       ))}

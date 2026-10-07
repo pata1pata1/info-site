@@ -1,13 +1,14 @@
 import Link from "next/link";
-import { getItemsByCategory } from "@/lib/dummy-data";
+import { getCasesByCategory, toSummary } from "@/lib/cases";
 import { getCategory, type CategorySlug } from "@/lib/site";
 import { InfoCardGrid } from "./InfoCardGrid";
 import { CategoryIcon } from "./CategoryIcon";
+import { CaseNotice } from "@/components/case/CaseNotice";
 
 /** 各カテゴリページ共通のテンプレート（ページタイトル・説明・情報一覧） */
 export function CategoryPage({ slug }: { slug: CategorySlug }) {
   const category = getCategory(slug);
-  const items = getItemsByCategory(slug);
+  const items = getCasesByCategory(slug).map(toSummary);
 
   return (
     <>
@@ -48,6 +49,9 @@ export function CategoryPage({ slug }: { slug: CategorySlug }) {
           <p className="shrink-0 text-sm text-slate-500">
             <span className="font-mono text-slate-300">{items.length}</span>件
           </p>
+        </div>
+        <div className="mb-6">
+          <CaseNotice category={slug} />
         </div>
         {/* TODO: 地域・事業者名・人物名・動物種別・投稿日・ステータスでの絞り込みをここに追加予定 */}
         <InfoCardGrid items={items} />

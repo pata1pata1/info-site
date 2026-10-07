@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { siteConfig } from "@/lib/site";
+import { AuthNav } from "@/components/auth/AuthNav";
 import { GlobalNav } from "./GlobalNav";
 
 export function Header() {
@@ -24,7 +25,10 @@ export function Header() {
             <span className="hidden text-[11px] tracking-wider text-cyan-200/60 sm:block">{siteConfig.tagline}</span>
           </span>
         </Link>
-        <GlobalNav />
+        <div className="flex items-center gap-2">
+          <GlobalNav />
+          <AuthNav />
+        </div>
       </div>
       <div className="glow-line absolute inset-x-0 bottom-0 opacity-60" aria-hidden="true" />
     </header>

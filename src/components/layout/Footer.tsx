@@ -28,7 +28,7 @@ export function Footer() {
         </div>
         <p className="mt-8 border-t border-line pt-6 text-xs leading-relaxed text-slate-500">
           掲載情報は報道・公的機関の発表・寄せられた情報などをもとに整理したものです。
-          現在はテスト版のため、掲載内容はすべてダミーデータです。
+          個別情報ページには、各ページ下部に記載した情報源で確認できた内容のみを掲載しています。
         </p>
         <p className="mt-2 text-xs text-slate-600">
           &copy; {new Date().getFullYear()} {siteConfig.name}

@@ -1,4 +1,5 @@
-import { formatDate, type NewsItem } from "@/lib/dummy-data";
+import { formatDate } from "@/lib/format";
+import type { NewsItem } from "@/lib/news";
 
 const labelStyles: Record<NewsItem["label"], string> = {
   お知らせ: "bg-cyan-400/10 text-cyan-200 ring-cyan-300/30",
