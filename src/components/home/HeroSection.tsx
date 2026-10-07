@@ -1,4 +1,5 @@
 import { JapanMapIcon } from "@/components/info/JapanMapIcon";
+import { SearchForm } from "@/components/search/SearchForm";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { RichText } from "@/components/ui/RichText";
 import type { HomeContent } from "@/lib/cms/types";
@@ -42,6 +43,9 @@ export function HeroSection({ home }: { home: HomeContent }) {
             {home.recentTitle}
           </ButtonLink>
         </div>
+
+        {/* 事案検索（スマホでは横幅いっぱい） */}
+        <SearchForm className="mt-6 max-w-xl" />
       </div>
     </section>
   );
