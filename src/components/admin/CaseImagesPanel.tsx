@@ -63,7 +63,7 @@ export function CaseImagesPanel({ caseId, images, loadError }: Props) {
     const files = Array.from(list ?? []);
     if (files.length === 0) return;
     const messages: string[] = [];
-    if (files.length > remaining) messages.push(`画像は1案件あたり${MAX_CASE_IMAGES}枚までです。超えた分は追加していません。`);
+    if (files.length > remaining) messages.push(`画像は1事案あたり${MAX_CASE_IMAGES}枚までです。超えた分は追加していません。`);
     setProcessing(true);
     const added: Pending[] = [];
     for (const file of files.slice(0, Math.max(0, remaining))) {
@@ -136,7 +136,7 @@ export function CaseImagesPanel({ caseId, images, loadError }: Props) {
 
   if (loadError) {
     return (
-      <Fieldset legend="2. 案件画像">
+      <Fieldset legend="2. 事案画像">
         <p className="rounded-lg bg-amber-400/[0.06] px-4 py-3 text-sm text-amber-100 ring-1 ring-inset ring-amber-300/25">
           画像一覧を読み込めませんでした。Supabase で <code className="font-mono">20261007000004_case_images.sql</code> を実行済みか確認してください。（{loadError}）
         </p>
@@ -146,7 +146,7 @@ export function CaseImagesPanel({ caseId, images, loadError }: Props) {
 
   return (
     <Fieldset
-      legend="2. 案件画像"
+      legend="2. 事案画像"
       description={`タイトル直下のギャラリーに、この並び順で表示されます（最大${MAX_CASE_IMAGES}枚）。公開ページでは画像をトリミングせず全体を表示します。1枚目が最初に表示されます。`}
     >
       {/* 登録済みの画像 */}

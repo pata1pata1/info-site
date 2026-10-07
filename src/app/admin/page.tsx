@@ -54,7 +54,7 @@ export default async function AdminDashboard(props: PageProps<"/admin">) {
           </li>
           <li>
             <Link href="/admin/cases" className="text-cyan-300 hover:text-cyan-200">事案ページ</Link>
-            ：個別情報ページの作成・編集・公開、案件画像（複数枚）、情報源・時系列の管理
+            ：個別情報ページの作成・編集・公開、事案画像（複数枚）、情報源・時系列の管理
           </li>
           <li>
             <Link href="/admin/news" className="text-cyan-300 hover:text-cyan-200">お知らせ</Link>

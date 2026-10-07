@@ -7,7 +7,7 @@ import { ConfirmButton } from "./ui";
 export function DeleteCaseButton({ id }: { id: string }) {
   return (
     <ConfirmButton
-      label="この案件を削除"
+      label="この事案を削除"
       confirmLabel="完全に削除する"
       description="元に戻せません。"
       onConfirm={() => deleteCase(id)}

@@ -65,7 +65,7 @@ export default async function AdminCasesList(props: PageProps<"/admin/cases">) {
           ＋ 新規作成
         </Link>
       </div>
-      {searchParams.deleted === "1" && <p className="text-sm text-cyan-200">案件を削除しました。</p>}
+      {searchParams.deleted === "1" && <p className="text-sm text-cyan-200">事案を削除しました。</p>}
 
       <div className="space-y-2">
         <FilterTabs label="公開状態で絞り込み" tabs={statusTabs} />

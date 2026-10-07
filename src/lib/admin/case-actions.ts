@@ -24,7 +24,7 @@ export async function saveCase(_prev: ActionState, formData: FormData): Promise<
     const { supabase } = await requireAdminAction();
     const { data, error } = await supabase.rpc("admin_save_case", { payload: values });
     if (error) {
-      if (error.code === "23505") return { ok: false, message: "同じカテゴリに同じURL用ID（slug）の案件があります。" };
+      if (error.code === "23505") return { ok: false, message: "同じカテゴリに同じURL用ID（slug）の事案があります。" };
       throw error;
     }
     id = data as string;
@@ -97,7 +97,7 @@ export async function uploadCaseImage(formData: FormData): Promise<ActionState> 
     source_url: String(formData.get("source_url") ?? ""),
   };
 
-  if (!UUID.test(caseId)) return { ok: false, message: "案件が見つかりません。" };
+  if (!UUID.test(caseId)) return { ok: false, message: "事案が見つかりません。" };
   if (!(file instanceof File) || file.size === 0) return { ok: false, message: "画像ファイルがありません。" };
   if (file.size > caseImageRule.maxBytes) return { ok: false, message: "画像は10MB以下にしてください。" };
   const errors = validateImageMeta(meta, "画像");
@@ -120,7 +120,7 @@ export async function uploadCaseImage(formData: FormData): Promise<ActionState> 
       .order("sort_order", { ascending: false });
     if (countError) throw countError;
     if ((existing ?? []).length >= MAX_CASE_IMAGES) {
-      return { ok: false, message: `画像は1案件あたり${MAX_CASE_IMAGES}枚までです。` };
+      return { ok: false, message: `画像は1事案あたり${MAX_CASE_IMAGES}枚までです。` };
     }
 
     const path = `cases/${caseId}/${crypto.randomUUID()}.${extensionByMime[image.mimeType]}`;

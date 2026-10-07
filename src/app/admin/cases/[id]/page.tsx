@@ -12,7 +12,7 @@ import { publishStatusLabels } from "@/lib/cms/types";
 import { CASE_IMAGE_BUCKET } from "@/lib/media/config";
 import { categories, type CategorySlug } from "@/lib/site";
 
-export const metadata: Metadata = { title: "案件の編集" };
+export const metadata: Metadata = { title: "事案の編集" };
 
 const UUID = /^[0-9a-f-]{36}$/;
 
@@ -55,7 +55,7 @@ export default async function AdminCaseEdit(props: PageProps<"/admin/cases/[id]"
       </div>
       {searchParams.created === "1" && (
         <p className="rounded-lg bg-cyan-400/[0.06] px-4 py-3 text-sm text-cyan-100 ring-1 ring-inset ring-cyan-300/25">
-          案件を作成しました。続けて案件画像を登録できます。
+          事案を作成しました。続けて事案画像を登録できます。
         </p>
       )}
 
@@ -69,9 +69,9 @@ export default async function AdminCaseEdit(props: PageProps<"/admin/cases/[id]"
 
       <section className="panel flex flex-wrap items-center justify-between gap-3 rounded-xl border-rose-400/20 p-5">
         <div>
-          <h2 className="text-sm font-bold text-rose-200">案件の削除</h2>
+          <h2 className="text-sm font-bold text-rose-200">事案の削除</h2>
           <p className="mt-1 text-xs text-slate-500">
-            本文・情報源・時系列・案件画像を完全に削除します。一時的に隠す場合は公開状態を「非公開」にしてください。
+            本文・情報源・時系列・事案画像を完全に削除します。一時的に隠す場合は公開状態を「非公開」にしてください。
           </p>
         </div>
         <DeleteCaseButton id={row.id} />

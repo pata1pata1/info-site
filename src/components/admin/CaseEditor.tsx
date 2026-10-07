@@ -75,7 +75,7 @@ export function CaseEditor({ initial, categoryLabels, imagesSlot }: Props) {
       <ActionResult state={shownState} />
 
       {/* ── 公開ページの表示順に合わせて並べる ─────────────────────────────
-          1 基本情報 → 2 案件画像 → 3 事件内容（優良事業者は掲載内容） → 4 現在の状況
+          1 基本情報 → 2 事案画像 → 3 事件内容（優良事業者は掲載内容） → 4 現在の状況
           →（公開ページではここに情報提供コメント）→ 5 時系列 → 6 情報源・参考資料 → 7 掲載方針
           → 公開ページに表示しない管理項目 → 保存バー */}
 
@@ -135,8 +135,8 @@ export function CaseEditor({ initial, categoryLabels, imagesSlot }: Props) {
       </Fieldset>
 
       {imagesSlot ?? (
-        <Fieldset legend="2. 案件画像">
-          <p className="text-xs text-slate-500">案件を作成すると、ここで画像を登録できます。</p>
+        <Fieldset legend="2. 事案画像">
+          <p className="text-xs text-slate-500">事案を作成すると、ここで画像を登録できます。</p>
         </Fieldset>
       )}
 
@@ -256,7 +256,7 @@ export function CaseEditor({ initial, categoryLabels, imagesSlot }: Props) {
 
       <Fieldset legend="7. NOTICE / 掲載方針">
         <p className="text-xs leading-relaxed text-slate-400">
-          掲載方針はカテゴリ共通の文章のため、案件ごとには編集しません。
+          掲載方針はカテゴリ共通の文章のため、事案ごとには編集しません。
           <Link href={`/admin/pages/${v.category}`} className="mx-1 text-cyan-300 hover:text-cyan-200">
             TOP・カテゴリ「{categoryLabels[v.category]}」
           </Link>
