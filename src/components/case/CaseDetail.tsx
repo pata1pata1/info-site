@@ -5,7 +5,10 @@ import { CategoryIcon } from "@/components/info/CategoryIcon";
 import { StatusBadge } from "@/components/info/StatusBadge";
 import type { Case, Source } from "@/lib/cases";
 import { formatDate, formatDateJa } from "@/lib/format";
+import { getSiteContent } from "@/lib/cms/content";
 import { getCategory } from "@/lib/site";
+import { RichText } from "@/components/ui/RichText";
+import { CaseMainImage } from "./CaseMainImage";
 import { CaseFacts } from "./CaseFacts";
 import { CaseNotice } from "./CaseNotice";
 import { DetailSection } from "./DetailSection";
@@ -17,9 +20,14 @@ type Props = {
   children?: ReactNode;
 };
 
-/** 個別情報ページ共通のテンプレート：概要 → 時系列 → 確認されている事実 → 現在の状況 → 情報源 */
-export function CaseDetail({ item, children }: Props) {
+/**
+ * 個別情報ページ共通のテンプレート。
+ * パンくず → カテゴリ・ステータス → タイトル → メイン画像 → 基本情報 → 概要 → 時系列
+ * → 確認されている事実 → 現在の状況 → 情報源 → NOTICE / 掲載方針 →（情報提供コメント）
+ */
+export async function CaseDetail({ item, children }: Props) {
   const category = getCategory(item.category);
+  const text = (await getSiteContent()).categories[item.category];
   const sources = item.sources;
 
   return (
@@ -38,7 +46,7 @@ export function CaseDetail({ item, children }: Props) {
               </li>
               <li aria-hidden="true" className="text-slate-600">/</li>
               <li>
-                <Link href={category.href} className="transition-colors hover:text-cyan-200">{category.name}</Link>
+                <Link href={category.href} className="transition-colors hover:text-cyan-200">{text.title}</Link>
               </li>
               <li aria-hidden="true" className="text-slate-600">/</li>
               <li aria-current="page" className="line-clamp-1 text-slate-300">{item.title}</li>
@@ -56,6 +64,8 @@ export function CaseDetail({ item, children }: Props) {
             {item.title}
           </h1>
           <div className={`mt-5 h-0.5 w-32 rounded-full ${category.theme.accentBar}`} aria-hidden="true" />
+
+          {item.mainImage && <CaseMainImage image={item.mainImage} />}
 
           <dl className="mt-6 grid grid-cols-2 gap-3 text-sm sm:grid-cols-3">
             <HeaderMeta label="ステータス" value={item.status} />
@@ -75,10 +85,8 @@ export function CaseDetail({ item, children }: Props) {
       </section>
 
       <div className="mx-auto max-w-4xl space-y-10 px-4 py-10">
-        <CaseNotice category={item.category} />
-
         <DetailSection title="概要" en="SUMMARY">
-          <p className="text-sm leading-relaxed text-slate-300 md:text-base">{item.summary}</p>
+          <RichText source={item.summary} className="text-sm leading-relaxed text-slate-300 md:text-base" />
         </DetailSection>
 
         <DetailSection title="時系列" en="TIMELINE">
@@ -115,7 +123,7 @@ export function CaseDetail({ item, children }: Props) {
               <StatusBadge status={item.status} />
               <span className="font-mono text-xs text-slate-500">{formatDate(item.updatedAt)} 時点</span>
             </div>
-            <p className="mt-3 text-sm leading-relaxed text-slate-300">{item.currentStatus}</p>
+            <RichText source={item.currentStatus} className="mt-3 text-sm leading-relaxed text-slate-300" />
           </div>
         </DetailSection>
 
@@ -127,7 +135,9 @@ export function CaseDetail({ item, children }: Props) {
           </p>
         </DetailSection>
 
-        {children}
+        <CaseNotice text={text.policy} />
+
+        {children && <div className="border-t border-line pt-10">{children}</div>}
       </div>
     </>
   );
@@ -153,9 +163,11 @@ function SourceList({ sources }: { sources: Source[] }) {
             <span className="rounded px-1.5 py-0.5 text-[10px] text-slate-400 ring-1 ring-inset ring-line-strong">
               {source.kind}
             </span>
-            <time dateTime={source.publishedAt} className="ml-auto font-mono text-slate-500">
-              公開 {formatDate(source.publishedAt)}
-            </time>
+            {source.publishedAt && (
+              <time dateTime={source.publishedAt} className="ml-auto font-mono text-slate-500">
+                公開 {formatDate(source.publishedAt)}
+              </time>
+            )}
           </div>
           <p className="mt-1.5 text-sm text-slate-100">{source.title}</p>
           <a

@@ -1,14 +1,17 @@
 import Link from "next/link";
-import { getCasesByCategory, toSummary } from "@/lib/cases";
+import { RichText } from "@/components/ui/RichText";
+import { listCaseSummaries } from "@/lib/cases";
+import { getSiteContent } from "@/lib/cms/content";
 import { getCategory, type CategorySlug } from "@/lib/site";
 import { InfoCardGrid } from "./InfoCardGrid";
 import { CategoryIcon } from "./CategoryIcon";
 import { CaseNotice } from "@/components/case/CaseNotice";
 
 /** 各カテゴリページ共通のテンプレート（ページタイトル・説明・情報一覧） */
-export function CategoryPage({ slug }: { slug: CategorySlug }) {
+export async function CategoryPage({ slug }: { slug: CategorySlug }) {
   const category = getCategory(slug);
-  const items = getCasesByCategory(slug).map(toSummary);
+  const [content, items] = await Promise.all([getSiteContent(), listCaseSummaries(slug)]);
+  const text = content.categories[slug];
 
   return (
     <>
@@ -25,19 +28,20 @@ export function CategoryPage({ slug }: { slug: CategorySlug }) {
                 <Link href="/" className="transition-colors hover:text-cyan-200">TOP</Link>
               </li>
               <li aria-hidden="true" className="text-slate-600">/</li>
-              <li aria-current="page" className="text-slate-300">{category.name}</li>
+              <li aria-current="page" className="text-slate-300">{text.title}</li>
             </ol>
           </nav>
           <div className="mt-5 flex items-center gap-3">
             <span className={`flex h-11 w-11 items-center justify-center rounded-xl ${category.theme.iconBg}`}>
               <CategoryIcon slug={slug} />
             </span>
-            <h1 className="text-2xl font-bold tracking-wide text-slate-50 md:text-3xl">{category.name}</h1>
+            <h1 className="text-2xl font-bold tracking-wide text-slate-50 md:text-3xl">{text.title}</h1>
           </div>
           <div className={`mt-5 h-0.5 w-32 rounded-full ${category.theme.accentBar}`} aria-hidden="true" />
-          <p className="mt-5 max-w-3xl text-sm leading-relaxed text-slate-300 md:text-base">
-            {category.description}
-          </p>
+          <RichText source={text.description} className="mt-5 max-w-3xl text-sm leading-relaxed text-slate-300 md:text-base" />
+          {text.supplement && (
+            <RichText source={text.supplement} className="mt-3 max-w-3xl text-xs leading-relaxed text-slate-400 md:text-sm" />
+          )}
         </div>
       </section>
 
@@ -51,7 +55,7 @@ export function CategoryPage({ slug }: { slug: CategorySlug }) {
           </p>
         </div>
         <div className="mb-6">
-          <CaseNotice category={slug} />
+          <CaseNotice text={text.policy} />
         </div>
         {/* TODO: 地域・事業者名・人物名・動物種別・投稿日・ステータスでの絞り込みをここに追加予定 */}
         <InfoCardGrid items={items} />

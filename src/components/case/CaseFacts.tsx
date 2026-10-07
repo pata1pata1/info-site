@@ -44,8 +44,8 @@ function renderFields(item: Case): [string, ReactNode][] {
         ["人物名", item.personName ?? "非公表（報道で実名が公表されていないため掲載しません）"],
         ["発生地域", item.region],
         ["対象となった動物", item.animalType],
-        ["発生日", item.occurredAt],
-        ["報道日", `${formatDateJa(item.reportedAt)}（本ページで確認した最も古い報道）`],
+        ["発生日", item.occurredAt ?? "情報源に記載なし"],
+        ["報道日", item.reportedAt ? `${formatDateJa(item.reportedAt)}（本ページで確認した最も古い報道）` : "—"],
         ["ステータス", item.status],
         ["捜査・裁判等の進展", <BulletList key="p" items={item.legalProgress} />],
       ];

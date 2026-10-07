@@ -1,13 +1,16 @@
 import Link from "next/link";
 import { CategoryIcon } from "@/components/info/CategoryIcon";
+import type { CategoryContent } from "@/lib/cms/types";
+import { toPlainText } from "@/lib/richtext";
 import type { Category } from "@/lib/site";
 
 type Props = {
   category: Category;
+  content: CategoryContent;
   count: number;
 };
 
-export function CategoryCard({ category, count }: Props) {
+export function CategoryCard({ category, content, count }: Props) {
   return (
     <Link
       href={category.href}
@@ -19,9 +22,9 @@ export function CategoryCard({ category, count }: Props) {
           <span className={`flex h-11 w-11 items-center justify-center rounded-xl ${category.theme.iconBg}`}>
             <CategoryIcon slug={category.slug} />
           </span>
-          <h3 className="text-lg font-bold text-slate-50">{category.name}</h3>
+          <h3 className="text-lg font-bold text-slate-50">{content.title}</h3>
         </div>
-        <p className="mt-4 flex-1 text-sm leading-relaxed text-slate-400">{category.description}</p>
+        <p className="mt-4 flex-1 text-sm leading-relaxed text-slate-400">{toPlainText(content.description)}</p>
         <div className="mt-5 flex items-center justify-between border-t border-line pt-4 text-sm">
           <span className="text-slate-500">
             掲載 <span className="font-mono text-slate-300">{count}</span>件

@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { siteConfig } from "@/lib/site";
+import { RichText } from "@/components/ui/RichText";
+import type { HomeContent } from "@/lib/cms/types";
 
-export function HeroSection() {
+export function HeroSection({ home }: { home: HomeContent }) {
   return (
     <section className="relative overflow-hidden border-b border-line">
       {/* 背景装飾：グリッド＋淡い光 */}
@@ -18,15 +19,13 @@ export function HeroSection() {
         </span>
 
         <h1 className="mt-6 text-4xl font-bold tracking-wide text-slate-50 md:text-6xl">
-          {siteConfig.name}
+          {home.siteName}
         </h1>
         <div className="glow-line mt-6 w-40 md:w-56" aria-hidden="true" />
         <p className="mt-6 text-lg font-medium tracking-[0.15em] text-cyan-100/90 md:text-2xl">
-          {siteConfig.tagline}
+          {home.tagline}
         </p>
-        <p className="mt-6 max-w-2xl text-sm leading-relaxed text-slate-400 md:text-base">
-          {siteConfig.description}
-        </p>
+        <RichText source={home.description} className="mt-6 max-w-2xl text-sm leading-relaxed text-slate-400 md:text-base" />
 
         <div className="mt-10 flex flex-wrap justify-center gap-3">
           <Link
@@ -39,7 +38,7 @@ export function HeroSection() {
             href="#recent"
             className="panel inline-flex items-center rounded-lg px-5 py-2.5 text-sm font-semibold text-slate-200 transition hover:border-line-strong hover:text-white"
           >
-            最近追加された情報
+            {home.recentTitle}
           </Link>
         </div>
       </div>

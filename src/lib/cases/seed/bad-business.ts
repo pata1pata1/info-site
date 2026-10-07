@@ -1,4 +1,4 @@
-import type { BadBusinessCase } from "./types";
+import type { BadBusinessCase } from "../types";
 
 /**
  * 悪徳動物関連事業者。

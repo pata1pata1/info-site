@@ -1,14 +1,13 @@
 import type { Metadata } from "next";
 import { CategoryPage } from "@/components/info/CategoryPage";
-import { getCategory } from "@/lib/site";
+import { getSiteContent } from "@/lib/cms/content";
+import { toPlainText } from "@/lib/richtext";
 
-const category = getCategory("bad-business");
+export async function generateMetadata(): Promise<Metadata> {
+  const text = (await getSiteContent()).categories["bad-business"];
+  return { title: text.title, description: toPlainText(text.description) };
+}
 
-export const metadata: Metadata = {
-  title: category.name,
-  description: category.description,
-};
-
-export default function BadBusinessPage() {
+export default function Page() {
   return <CategoryPage slug="bad-business" />;
 }

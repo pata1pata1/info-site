@@ -1,4 +1,4 @@
-import type { AnimalAbuseCase } from "./types";
+import type { AnimalAbuseCase } from "../types";
 
 /**
  * 動物虐待事案。

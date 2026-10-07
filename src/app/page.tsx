@@ -3,36 +3,42 @@ import { HeroSection } from "@/components/home/HeroSection";
 import { NewsList } from "@/components/home/NewsList";
 import { SectionHeading } from "@/components/home/SectionHeading";
 import { InfoCardGrid } from "@/components/info/InfoCardGrid";
-import { getCasesByCategory, getRecentCases, toSummary } from "@/lib/cases";
-import { newsItems } from "@/lib/news";
+import { listCaseSummaries } from "@/lib/cases";
+import { getPublishedNews, getSiteContent } from "@/lib/cms/content";
 import { categories } from "@/lib/site";
 
-export default function Home() {
-  const recentItems = getRecentCases(6).map(toSummary);
+export default async function Home() {
+  const [content, recentItems, news, counts] = await Promise.all([
+    getSiteContent(),
+    listCaseSummaries(undefined, 6),
+    getPublishedNews(10),
+    Promise.all(categories.map((c) => listCaseSummaries(c.slug).then((items) => items.length))),
+  ]);
+  const { home } = content;
 
   return (
     <>
-      <HeroSection />
+      <HeroSection home={home} />
 
       <section id="categories" className="mx-auto max-w-6xl scroll-mt-20 px-4 pt-12">
-        <SectionHeading title="カテゴリから探す" />
+        <SectionHeading title={home.categoriesTitle} description={home.categoriesDescription} />
         <ul className="grid gap-5 md:grid-cols-3">
-          {categories.map((category) => (
+          {categories.map((category, i) => (
             <li key={category.slug}>
-              <CategoryCard category={category} count={getCasesByCategory(category.slug).length} />
+              <CategoryCard category={category} content={content.categories[category.slug]} count={counts[i]} />
             </li>
           ))}
         </ul>
       </section>
 
       <section id="recent" className="mx-auto max-w-6xl scroll-mt-20 px-4 pt-14">
-        <SectionHeading title="最近追加された情報" description="各カテゴリに新しく掲載された情報です。" />
+        <SectionHeading title={home.recentTitle} description={home.recentDescription} />
         <InfoCardGrid items={recentItems} showCategory />
       </section>
 
       <section className="mx-auto max-w-6xl px-4 pt-14">
-        <SectionHeading title="お知らせ" description="サイトからのお知らせ・更新情報です。" />
-        <NewsList items={newsItems} />
+        <SectionHeading title={home.newsTitle} description={home.newsDescription} />
+        <NewsList items={news} />
       </section>
     </>
   );

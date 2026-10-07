@@ -1,3 +1,5 @@
+import { RichText } from "@/components/ui/RichText";
+
 export function SectionHeading({ title, description }: { title: string; description?: string }) {
   return (
     <div className="mb-6">
@@ -6,7 +8,7 @@ export function SectionHeading({ title, description }: { title: string; descript
         <h2 className="shrink-0 text-xl font-bold tracking-wide text-slate-50">{title}</h2>
         <span className="h-px flex-1 bg-gradient-to-r from-line-strong to-transparent" aria-hidden="true" />
       </div>
-      {description && <p className="mt-2 pl-4 text-sm text-slate-400">{description}</p>}
+      {description && <RichText source={description} className="mt-2 pl-4 text-sm text-slate-400" />}
     </div>
   );
 }

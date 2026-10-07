@@ -3,13 +3,14 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { navItems } from "@/lib/site";
 
 function isActive(pathname: string, href: string) {
   return href === "/" ? pathname === "/" : pathname.startsWith(href);
 }
 
-export function GlobalNav() {
+export type NavItem = { href: string; label: string };
+
+export function GlobalNav({ items }: { items: NavItem[] }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
@@ -18,7 +19,7 @@ export function GlobalNav() {
       {/* PC */}
       <nav aria-label="グローバルナビゲーション" className="hidden md:block">
         <ul className="flex items-center gap-1">
-          {navItems.map((item) => {
+          {items.map((item) => {
             const active = isActive(pathname, item.href);
             return (
               <li key={item.href}>
@@ -64,7 +65,7 @@ export function GlobalNav() {
           className="absolute inset-x-0 top-full border-b border-line bg-night-2 shadow-[0_16px_32px_-12px_rgb(0_0_0/0.7)] backdrop-blur-md md:hidden"
         >
           <ul className="mx-auto max-w-6xl px-4 py-2">
-            {navItems.map((item) => {
+            {items.map((item) => {
               const active = isActive(pathname, item.href);
               return (
                 <li key={item.href}>

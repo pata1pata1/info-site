@@ -1,9 +1,14 @@
 import Link from "next/link";
-import { siteConfig } from "@/lib/site";
 import { AuthNav } from "@/components/auth/AuthNav";
-import { GlobalNav } from "./GlobalNav";
+import { GlobalNav, type NavItem } from "./GlobalNav";
 
-export function Header() {
+type Props = {
+  siteName: string;
+  tagline: string;
+  navItems: NavItem[];
+};
+
+export function Header({ siteName, tagline, navItems }: Props) {
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-night/75 backdrop-blur-md">
       <div className="relative mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
@@ -21,12 +26,12 @@ export function Header() {
             </svg>
           </span>
           <span className="flex flex-col leading-tight">
-            <span className="text-lg font-bold tracking-wide text-slate-50">{siteConfig.name}</span>
-            <span className="hidden text-[11px] tracking-wider text-cyan-200/60 sm:block">{siteConfig.tagline}</span>
+            <span className="text-lg font-bold tracking-wide text-slate-50">{siteName}</span>
+            <span className="hidden text-[11px] tracking-wider text-cyan-200/60 sm:block">{tagline}</span>
           </span>
         </Link>
         <div className="flex items-center gap-2">
-          <GlobalNav />
+          <GlobalNav items={navItems} />
           <AuthNav />
         </div>
       </div>

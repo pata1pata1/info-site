@@ -3,22 +3,23 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { CaseDetail } from "@/components/case/CaseDetail";
 import { CommentSection } from "@/components/comments/CommentSection";
-import { getCase, getCasesByCategory } from "@/lib/cases";
+import { getCase, listCaseSlugs } from "@/lib/cases";
+import { toPlainText } from "@/lib/richtext";
 
-export function generateStaticParams() {
-  return getCasesByCategory("bad-business").map((c) => ({ slug: c.slug }));
+export async function generateStaticParams() {
+  return (await listCaseSlugs("bad-business")).map((slug) => ({ slug }));
 }
 
 export async function generateMetadata(props: PageProps<"/bad-business/[slug]">): Promise<Metadata> {
   const { slug } = await props.params;
-  const item = getCase("bad-business", slug);
+  const item = await getCase("bad-business", slug);
   if (!item) return {};
-  return { title: item.title, description: item.summary };
+  return { title: item.title, description: toPlainText(item.summary) };
 }
 
 export default async function Page(props: PageProps<"/bad-business/[slug]">) {
   const { slug } = await props.params;
-  const item = getCase("bad-business", slug);
+  const item = await getCase("bad-business", slug);
   if (!item) notFound();
 
   return (

@@ -3,22 +3,23 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { CaseDetail } from "@/components/case/CaseDetail";
 import { CommentSection } from "@/components/comments/CommentSection";
-import { getCase, getCasesByCategory } from "@/lib/cases";
+import { getCase, listCaseSlugs } from "@/lib/cases";
+import { toPlainText } from "@/lib/richtext";
 
-export function generateStaticParams() {
-  return getCasesByCategory("animal-abuse").map((c) => ({ slug: c.slug }));
+export async function generateStaticParams() {
+  return (await listCaseSlugs("animal-abuse")).map((slug) => ({ slug }));
 }
 
 export async function generateMetadata(props: PageProps<"/animal-abuse/[slug]">): Promise<Metadata> {
   const { slug } = await props.params;
-  const item = getCase("animal-abuse", slug);
+  const item = await getCase("animal-abuse", slug);
   if (!item) return {};
-  return { title: item.title, description: item.summary };
+  return { title: item.title, description: toPlainText(item.summary) };
 }
 
 export default async function Page(props: PageProps<"/animal-abuse/[slug]">) {
   const { slug } = await props.params;
-  const item = getCase("animal-abuse", slug);
+  const item = await getCase("animal-abuse", slug);
   if (!item) notFound();
 
   return (

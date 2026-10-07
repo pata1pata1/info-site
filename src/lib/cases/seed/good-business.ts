@@ -1,4 +1,4 @@
-import type { GoodBusinessCase } from "./types";
+import type { GoodBusinessCase } from "../types";
 
 /**
  * 優良動物関連事業者。

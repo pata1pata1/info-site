@@ -1,14 +1,13 @@
 import type { Metadata } from "next";
 import { CategoryPage } from "@/components/info/CategoryPage";
-import { getCategory } from "@/lib/site";
+import { getSiteContent } from "@/lib/cms/content";
+import { toPlainText } from "@/lib/richtext";
 
-const category = getCategory("animal-abuse");
+export async function generateMetadata(): Promise<Metadata> {
+  const text = (await getSiteContent()).categories["animal-abuse"];
+  return { title: text.title, description: toPlainText(text.description) };
+}
 
-export const metadata: Metadata = {
-  title: category.name,
-  description: category.description,
-};
-
-export default function AnimalAbusePage() {
+export default function Page() {
   return <CategoryPage slug="animal-abuse" />;
 }

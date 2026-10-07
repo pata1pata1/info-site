@@ -1,3 +1,4 @@
+/** サイト名などの初期値（Supabase 接続後は管理画面の「ページ文章」で編集した内容が優先される） */
 export const siteConfig = {
   name: "スキャムオブザーブ",
   tagline: "動物が生きやすい社会へ",

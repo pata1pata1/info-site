@@ -17,8 +17,8 @@ export type Source = {
   publisher: string;
   /** 記事・資料のタイトル */
   title: string;
-  /** 公開日（YYYY-MM-DD） */
-  publishedAt: string;
+  /** 公開日（YYYY-MM-DD。不明な場合は無し） */
+  publishedAt?: string;
   url: string;
   kind: "報道" | "公的機関";
 };
@@ -69,11 +69,32 @@ export type GoodBusinessStatus = "公的表彰" | "公的認定" | "第三者認
 
 export type CaseStatus = AbuseStatus | BadBusinessStatus | GoodBusinessStatus;
 
+/** カテゴリごとに選べるステータス（管理画面の選択肢・入力チェックに使う） */
+export const statusOptions = {
+  "animal-abuse": ["報道", "捜査中", "逮捕", "書類送検", "起訴", "不起訴", "有罪判決", "無罪", "その他"],
+  "bad-business": ["報道", "行政指導", "行政処分", "捜査中", "逮捕", "書類送検", "起訴", "有罪判決", "その他"],
+  "good-business": ["公的表彰", "公的認定", "第三者認証", "報道"],
+} as const satisfies Record<CategorySlug, readonly CaseStatus[]>;
+
+/** 案件のメイン画像（タイトル直下に16:9で表示。未登録なら表示しない） */
+export type MainImage = {
+  url: string;
+  alt: string;
+  caption?: string;
+  sourceName?: string;
+  sourceUrl?: string;
+  width?: number;
+  height?: number;
+};
+
 type CaseBase = {
+  /** DB の ID（初期データ・未接続時は無し） */
+  id?: string;
   slug: string;
   title: string;
-  /** 一覧カード・概要欄に表示する要約 */
+  /** 一覧カード・概要欄に表示する要約（簡易リッチテキスト） */
   summary: string;
+  mainImage?: MainImage;
   /** 都道府県・市区町村程度まで */
   region: string;
   animalType: string;
@@ -81,7 +102,7 @@ type CaseBase = {
   statusNote?: string;
   timeline: TimelineEvent[];
   facts: Fact[];
-  /** 現在の状況 */
+  /** 現在の状況（簡易リッチテキスト） */
   currentStatus: string;
   sources: Source[];
   /** 掲載内容の最終更新日（YYYY-MM-DD） */
@@ -94,9 +115,9 @@ export type AnimalAbuseCase = CaseBase & {
   /** 報道で実名が公表されている場合のみ */
   personName?: string;
   /** 発生日（期間の場合は表示用文字列） */
-  occurredAt: string;
+  occurredAt?: string;
   /** 最初に確認できた報道日（YYYY-MM-DD） */
-  reportedAt: string;
+  reportedAt?: string;
   /** その後の捜査・裁判等の進展 */
   legalProgress: string[];
 };

@@ -7,6 +7,7 @@ import { LogoutButton } from "@/components/auth/LogoutButton";
 import { SetupNotice } from "@/components/auth/SetupNotice";
 import { FormMessage } from "@/components/ui/FormMessage";
 import { secondaryButtonClass } from "@/components/ui/form-styles";
+import { getAdminContext } from "@/lib/admin/auth";
 import { safeNextPath } from "@/lib/comments/validation";
 import { createClient } from "@/lib/supabase/server";
 
@@ -28,7 +29,10 @@ export default async function AccountPage(props: PageProps<"/account">) {
   const { data: auth } = await supabase.auth.getUser();
   if (!auth.user) redirect("/login?next=/account");
 
-  const { data: profile } = await supabase.from("profiles").select("display_name").eq("id", auth.user.id).maybeSingle();
+  const [{ data: profile }, admin] = await Promise.all([
+    supabase.from("profiles").select("display_name").eq("id", auth.user.id).maybeSingle(),
+    getAdminContext(),
+  ]);
 
   return (
     <AuthShell title="マイページ" en="ACCOUNT">
@@ -45,6 +49,9 @@ export default async function AccountPage(props: PageProps<"/account">) {
         </div>
 
         <div className="flex flex-wrap gap-3 border-t border-line pt-6">
+          {admin && (
+            <Link href="/admin" className={secondaryButtonClass}>管理画面へ</Link>
+          )}
           {next !== "/" && (
             <Link href={next} className={secondaryButtonClass}>元のページに戻る</Link>
           )}

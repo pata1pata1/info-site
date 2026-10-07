@@ -1,3 +1,4 @@
+import { AttachmentGallery } from "./AttachmentGallery";
 import { commentStatusLabels, commentStatusNotes, type CommentStatus, type PublicComment } from "@/lib/comments/types";
 
 const statusStyles: Record<CommentStatus, string> = {
@@ -50,6 +51,8 @@ export function CommentList({ comments }: { comments: PublicComment[] }) {
 }
 
 function CommentItem({ comment }: { comment: PublicComment }) {
+  const unverified = comment.status === "investigating";
+
   return (
     <article className="panel rounded-xl p-5">
       <header className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
@@ -60,7 +63,19 @@ function CommentItem({ comment }: { comment: PublicComment }) {
         <span className="ml-auto text-xs text-slate-500">{comment.display_name}</span>
       </header>
 
+      {unverified && (
+        <p className="mt-3 inline-flex items-center gap-1.5 rounded-md bg-amber-400/[0.06] px-2.5 py-1 text-xs text-amber-200 ring-1 ring-inset ring-amber-300/20">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" />
+            <path d="M12 8v5m0 3v.01" />
+          </svg>
+          この情報はユーザーから提供された未確認情報です
+        </p>
+      )}
+
       <p className="mt-3 whitespace-pre-wrap break-words text-sm leading-relaxed text-slate-200">{comment.body}</p>
+
+      <AttachmentGallery attachments={comment.attachments} unverified={unverified} />
 
       {(comment.source_url || comment.info_checked_at) && (
         <dl className="mt-4 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 border-t border-line pt-3 text-xs">

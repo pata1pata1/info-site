@@ -1,3 +1,4 @@
+import type { MediaKind } from "../media/config";
 import type { CategorySlug } from "../site";
 
 /** DB の comment_status と対応。新規投稿は必ず investigating（調査中） */
@@ -13,7 +14,7 @@ export const commentStatusLabels: Record<CommentStatus, string> = {
 
 /** 各ステータスの投稿の下に表示する説明 */
 export const commentStatusNotes: Record<CommentStatus, string> = {
-  investigating: "この投稿内容は現在確認中です。事実として確認されたものではありません。",
+  investigating: "この投稿内容は現在確認中です。運営側で内容や情報源を確認している途中であり、事実として確認されたものではありません。",
   verified: "運営側で情報源を確認済みの投稿です。",
   reference: "参考情報として掲載している投稿です。事実として確認されたものではありません。",
   archived: "掲載を終了した投稿です。",
@@ -31,12 +32,28 @@ export type PublicComment = {
   status: CommentStatus;
   created_at: string;
   display_name: string;
+  attachments: CommentAttachment[];
+};
+
+/** 公開中の添付（public_comment_attachments ビュー＋表示用の期限付きURL） */
+export type CommentAttachment = {
+  id: string;
+  comment_id: string;
+  storage_path: string;
+  media_type: MediaKind;
+  mime_type: string;
+  width: number | null;
+  height: number | null;
+  sort_order: number;
+  description: string | null;
+  /** 期限付き署名URL。発行できなかった場合は null */
+  url: string | null;
 };
 
 export type CommentFormState = {
   ok: boolean;
   message?: string;
-  errors?: Partial<Record<"body" | "sourceUrl" | "infoCheckedAt" | "agreement", string>>;
+  errors?: Partial<Record<"body" | "sourceUrl" | "infoCheckedAt" | "agreement" | "images", string>>;
   /** エラー時に入力内容を復元するための値（React はアクション完了後にフォームをリセットする） */
   values?: { body: string; sourceUrl: string; infoCheckedAt: string };
 };
