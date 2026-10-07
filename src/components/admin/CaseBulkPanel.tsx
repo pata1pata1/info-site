@@ -97,17 +97,17 @@ export function CaseBulkPanel({ rows, categoryTitles }: Props) {
             全選択解除
           </button>
           <button type="button" className={`${primaryButtonClass} ml-auto`} onClick={openConfirm} disabled={selectedRows.length === 0}>
-            選択した案件を公開
+            選択した事案を公開
           </button>
         </div>
         <p className="text-[11px] leading-relaxed text-slate-500">
-          チェックできるのは、表示中の「下書き」で必須エラーがない案件だけです。警告は確認推奨（意図的な空欄の場合あり）で、公開は可能です。
+          チェックできるのは、表示中の「下書き」で必須エラーがない事案だけです。警告は確認推奨（意図的な空欄の場合あり）で、公開は可能です。
         </p>
         {result?.ok && <ActionResult state={result} />}
       </div>
 
       <ul className="panel divide-y divide-line overflow-hidden rounded-xl">
-        {rows.length === 0 && <li className="p-6 text-center text-sm text-slate-500">案件はありません。</li>}
+        {rows.length === 0 && <li className="p-6 text-center text-sm text-slate-500">事案はありません。</li>}
         {rows.map((row) => {
           const isDraft = row.publish_status === "draft";
           const canSelect = isDraft && row.audit.publishable;
@@ -171,7 +171,7 @@ export function CaseBulkPanel({ rows, categoryTitles }: Props) {
       >
         <div className="space-y-4 p-5 md:p-6">
           <h2 id="bulk-publish-title" className="text-base font-bold text-slate-50">
-            公開する案件：<span className="font-mono">{selectedRows.length}</span>件
+            公開する事案：<span className="font-mono">{selectedRows.length}</span>件
           </h2>
           <dl className="grid grid-cols-[1fr_auto] gap-x-6 gap-y-1 text-sm">
             {categories.map((c) => (
@@ -184,7 +184,7 @@ export function CaseBulkPanel({ rows, categoryTitles }: Props) {
             <dd className="text-right font-mono text-amber-200">{selectedWarnings}件</dd>
           </dl>
           <details className="rounded-lg bg-panel px-3 py-2 text-xs ring-1 ring-inset ring-line">
-            <summary className="cursor-pointer text-slate-300">公開する案件の一覧を確認</summary>
+            <summary className="cursor-pointer text-slate-300">公開する事案の一覧を確認</summary>
             <ol className="mt-2 max-h-56 list-decimal space-y-1 overflow-y-auto pl-5 text-slate-300">
               {selectedRows.map((r) => (
                 <li key={r.id}>

@@ -16,7 +16,7 @@ const MAX_BULK_PUBLISH = 200;
  */
 export async function publishSelectedCases(ids: string[]): Promise<ActionState & { published?: number }> {
   const unique = [...new Set(ids)];
-  if (unique.length === 0) return { ok: false, message: "公開する案件が選択されていません。" };
+  if (unique.length === 0) return { ok: false, message: "公開する事案が選択されていません。" };
   if (unique.length > MAX_BULK_PUBLISH) return { ok: false, message: `一度に公開できるのは${MAX_BULK_PUBLISH}件までです。` };
   if (!unique.every((id) => UUID.test(id))) return { ok: false, message: "選択内容が不正です。" };
 
@@ -27,17 +27,17 @@ export async function publishSelectedCases(ids: string[]): Promise<ActionState &
     const { rows, error } = await loadAuditedCases(supabase, unique);
     if (error) throw new Error(error);
     if (rows.length !== unique.length) {
-      return { ok: false, message: "選択した案件の一部が見つかりませんでした。一覧を再読み込みしてください。何も公開していません。" };
+      return { ok: false, message: "選択した事案の一部が見つかりませんでした。一覧を再読み込みしてください。何も公開していません。" };
     }
     const notDraft = rows.filter((r) => r.publish_status !== "draft");
     if (notDraft.length > 0) {
-      return { ok: false, message: `下書きではない案件が${notDraft.length}件含まれています。一覧を再読み込みしてください。何も公開していません。` };
+      return { ok: false, message: `下書きではない事案が${notDraft.length}件含まれています。一覧を再読み込みしてください。何も公開していません。` };
     }
     const blocked = rows.filter((r) => !r.audit.publishable);
     if (blocked.length > 0) {
       return {
         ok: false,
-        message: `必須エラーのある案件が${blocked.length}件含まれています。何も公開していません。`,
+        message: `必須エラーのある事案が${blocked.length}件含まれています。何も公開していません。`,
         errors: blocked.map((r) => `${r.title}：${r.audit.issues.filter((i) => i.level === "error").map((i) => i.message).join("、")}`),
       };
     }
