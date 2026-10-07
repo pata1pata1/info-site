@@ -59,7 +59,7 @@ function summarize(c: {
     updatedAt: c.updatedAt,
     ...(c.category === "animal-abuse"
       ? { subjectLabel: "人物名", subjectName: c.personName ?? "非公表" }
-      : { subjectLabel: "事業者名", subjectName: c.businessName ?? undefined }),
+      : { subjectLabel: c.category === "good-business" ? "団体名" : "事業者名", subjectName: c.businessName ?? undefined }),
   };
 }
 

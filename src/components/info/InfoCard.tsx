@@ -35,17 +35,26 @@ export function InfoCard({ item, showCategory = false }: Props) {
           {item.summary}
         </p>
 
-        <dl className="mt-4 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 border-t border-line pt-4 text-xs">
+        {/* 名前（人物名／事業者名／団体名）と地域を目立たせる。動物種別は一覧では表示しない（詳細ページで表示） */}
+        <dl className="mt-4 grid grid-cols-[auto_1fr] items-baseline gap-x-4 gap-y-2 border-t border-line pt-4">
           {item.subjectName && (
             <>
-              <dt className="text-slate-500">{item.subjectLabel}</dt>
-              <dd className="font-medium text-slate-100">{item.subjectName}</dd>
+              <dt className="text-[11px] tracking-wide text-slate-500">{item.subjectLabel}</dt>
+              <dd
+                className={`min-w-0 break-words ${
+                  item.subjectName === "非公表" ? "text-sm font-medium text-slate-400" : "text-base font-bold leading-snug text-slate-50"
+                }`}
+              >
+                {item.subjectName}
+              </dd>
             </>
           )}
-          <dt className="text-slate-500">地域</dt>
-          <dd className="text-slate-300">{item.region}</dd>
-          <dt className="text-slate-500">動物種別</dt>
-          <dd className="text-slate-300">{item.animalType}</dd>
+          {item.region && (
+            <>
+              <dt className="text-[11px] tracking-wide text-slate-500">地域</dt>
+              <dd className="min-w-0 break-words text-sm font-medium text-slate-200">{item.region}</dd>
+            </>
+          )}
         </dl>
         <span className="mt-4 text-xs font-semibold text-cyan-300 transition-colors group-hover:text-cyan-200">
           詳細を見る

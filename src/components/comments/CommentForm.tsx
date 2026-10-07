@@ -103,7 +103,7 @@ function CommentFields({ category, slug, state, pending, formAction }: FieldsPro
           defaultValue={values?.body}
           aria-invalid={Boolean(errors.body)}
           className={`${inputClass} resize-y leading-relaxed`}
-          placeholder="この案件について追加の情報があれば記入してください。"
+          placeholder="この事案について追加の情報があれば記入してください。"
         />
         {errors.body ? (
           <p className={errorClass}>{errors.body}</p>

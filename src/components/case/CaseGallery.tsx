@@ -96,7 +96,7 @@ export function CaseGallery({ images }: { images: CaseImage[] }) {
     <section
       className="mt-6"
       aria-roledescription="画像ギャラリー"
-      aria-label="案件画像"
+      aria-label="事案画像"
       onKeyDown={(e) => {
         if (!paged) return;
         if (e.key === "ArrowRight" && hasNext) goNext();
@@ -144,7 +144,7 @@ export function CaseGallery({ images }: { images: CaseImage[] }) {
         ref={dialogRef}
         onClick={(e) => e.target === e.currentTarget && closeZoom()}
         className="m-0 h-dvh max-h-none w-screen max-w-none bg-transparent p-0 backdrop:bg-night/90 backdrop:backdrop-blur-sm"
-        aria-label="案件画像の拡大表示"
+        aria-label="事案画像の拡大表示"
       >
         {zoomed && zoomIndex !== null && (
           <div className="flex h-full flex-col" onClick={(e) => e.target === e.currentTarget && closeZoom()}>
