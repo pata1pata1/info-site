@@ -42,7 +42,7 @@ export default async function AdminCaseEdit(props: PageProps<"/admin/cases/[id]"
   return (
     <div className="space-y-6">
       <div>
-        <Link href="/admin/cases" className="text-xs text-slate-500 hover:text-cyan-200">← 案件</Link>
+        <Link href="/admin/cases" className="text-xs text-slate-500 hover:text-cyan-200">← 事案ページ</Link>
         <h1 className="mt-2 text-xl font-bold text-slate-50">{row.title}</h1>
         <p className="mt-1 flex flex-wrap gap-x-4 text-xs text-slate-500">
           <span>公開状態：{publishStatusLabels[row.publish_status]}</span>

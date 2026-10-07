@@ -1,6 +1,7 @@
 import { CategoryCard } from "@/components/home/CategoryCard";
 import { HeroSection } from "@/components/home/HeroSection";
 import { NewsList } from "@/components/home/NewsList";
+import { PrefectureSearchCard } from "@/components/home/PrefectureSearchCard";
 import { SectionHeading } from "@/components/home/SectionHeading";
 import { InfoCardGrid } from "@/components/info/InfoCardGrid";
 import { listCaseSummaries } from "@/lib/cases";
@@ -29,6 +30,9 @@ export default async function Home() {
             </li>
           ))}
         </ul>
+        <div className="mt-5">
+          <PrefectureSearchCard />
+        </div>
       </section>
 
       <section id="recent" className="mx-auto max-w-6xl scroll-mt-20 px-4 pt-14">

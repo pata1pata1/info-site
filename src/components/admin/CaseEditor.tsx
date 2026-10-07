@@ -258,7 +258,7 @@ export function CaseEditor({ initial, categoryLabels, imagesSlot }: Props) {
         <p className="text-xs leading-relaxed text-slate-400">
           掲載方針はカテゴリ共通の文章のため、案件ごとには編集しません。
           <Link href={`/admin/pages/${v.category}`} className="mx-1 text-cyan-300 hover:text-cyan-200">
-            ページ文章「{categoryLabels[v.category]}」
+            TOP・カテゴリ「{categoryLabels[v.category]}」
           </Link>
           の「掲載方針（NOTICE）」で編集できます。
         </p>

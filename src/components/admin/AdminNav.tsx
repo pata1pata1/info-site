@@ -5,8 +5,8 @@ import { usePathname } from "next/navigation";
 
 const items = [
   { href: "/admin", label: "ダッシュボード" },
-  { href: "/admin/pages", label: "ページ文章" },
-  { href: "/admin/cases", label: "案件" },
+  { href: "/admin/pages", label: "TOP・カテゴリ" },
+  { href: "/admin/cases", label: "事案ページ" },
   { href: "/admin/news", label: "お知らせ" },
   { href: "/admin/comments", label: "情報提供コメント" },
   { href: "/admin/admins", label: "管理者" },

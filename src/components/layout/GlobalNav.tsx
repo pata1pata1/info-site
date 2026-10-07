@@ -62,7 +62,7 @@ export function GlobalNav({ items }: { items: NavItem[] }) {
         <nav
           id="mobile-nav"
           aria-label="グローバルナビゲーション"
-          className="absolute inset-x-0 top-full border-b border-line bg-night-2 shadow-[0_16px_32px_-12px_rgb(0_0_0/0.7)] backdrop-blur-md md:hidden"
+          className="absolute inset-x-0 top-full border-b border-line bg-night-2 shadow-[0_16px_32px_-12px_rgb(3_10_18/0.7)] backdrop-blur-md md:hidden"
         >
           <ul className="mx-auto max-w-6xl px-4 py-2">
             {items.map((item) => {

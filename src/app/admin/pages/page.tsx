@@ -5,7 +5,7 @@ import { pageLabels } from "@/lib/admin/labels";
 import type { PageSlug } from "@/lib/cms/types";
 import { formatDate } from "@/lib/format";
 
-export const metadata: Metadata = { title: "ページ文章" };
+export const metadata: Metadata = { title: "TOP・カテゴリ" };
 
 export default async function AdminPagesList() {
   const { supabase } = await requireAdminPage("/admin/pages");
@@ -18,7 +18,7 @@ export default async function AdminPagesList() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-xl font-bold text-slate-50">ページ文章</h1>
+      <h1 className="text-xl font-bold text-slate-50">TOP・カテゴリ</h1>
       <ul className="panel divide-y divide-line overflow-hidden rounded-xl">
         {(Object.keys(pageLabels) as PageSlug[]).map((slug) => {
           const p = pub.get(slug);

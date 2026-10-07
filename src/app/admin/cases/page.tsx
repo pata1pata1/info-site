@@ -1,79 +1,99 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { StatusBadge } from "@/components/info/StatusBadge";
+import { CaseBulkPanel } from "@/components/admin/CaseBulkPanel";
 import { primaryButtonClass } from "@/components/ui/form-styles";
 import { requireAdminPage } from "@/lib/admin/auth";
-import { publishBadge } from "@/lib/admin/labels";
-import type { CaseStatus } from "@/lib/cases";
+import { loadAuditedCases } from "@/lib/admin/case-audit-data";
 import { getSiteContent } from "@/lib/cms/content";
-import { publishStatusLabels, type PublishStatus } from "@/lib/cms/types";
-import { formatDate } from "@/lib/format";
 import { categories, type CategorySlug } from "@/lib/site";
 
-export const metadata: Metadata = { title: "案件" };
+export const metadata: Metadata = { title: "事案ページ" };
+
+const statusFilters = [
+  { value: "all", label: "すべて" },
+  { value: "draft", label: "下書き" },
+  { value: "published", label: "公開中" },
+] as const;
+type StatusFilter = (typeof statusFilters)[number]["value"];
 
 export default async function AdminCasesList(props: PageProps<"/admin/cases">) {
   const { supabase } = await requireAdminPage("/admin/cases");
   const searchParams = await props.searchParams;
   const category = categories.find((c) => c.slug === searchParams.category)?.slug;
+  const status: StatusFilter = statusFilters.find((s) => s.value === searchParams.status)?.value ?? "all";
 
-  let query = supabase
-    .from("cases")
-    .select("id, category, slug, title, case_status, publish_status, content_updated_on")
-    .order("updated_at", { ascending: false });
-  if (category) query = query.eq("category", category);
-  const [{ data: rows, error }, content] = await Promise.all([query, getSiteContent()]);
+  const [{ rows, error }, content] = await Promise.all([loadAuditedCases(supabase), getSiteContent()]);
 
-  const tabs: { href: string; label: string; active: boolean }[] = [
-    { href: "/admin/cases", label: "すべて", active: !category },
-    ...categories.map((c) => ({ href: `/admin/cases?category=${c.slug}`, label: content.categories[c.slug].title, active: category === c.slug })),
+  const matchStatus = (s: StatusFilter, publishStatus: string) => s === "all" || publishStatus === s;
+  const matchCategory = (c: CategorySlug | undefined, rowCategory: string) => !c || rowCategory === c;
+  const visible = rows.filter((r) => matchStatus(status, r.publish_status) && matchCategory(category, r.category));
+
+  const href = (next: { status?: StatusFilter; category?: CategorySlug }) => {
+    const params = new URLSearchParams();
+    const s = "status" in next ? next.status : status;
+    const c = "category" in next ? next.category : category;
+    if (s && s !== "all") params.set("status", s);
+    if (c) params.set("category", c);
+    const query = params.toString();
+    return query ? `/admin/cases?${query}` : "/admin/cases";
+  };
+
+  // 件数：状態の件数は現在のカテゴリ内、カテゴリの件数は現在の状態内で数える
+  const statusTabs = statusFilters.map((s) => ({
+    href: href({ status: s.value }),
+    label: s.label,
+    count: rows.filter((r) => matchStatus(s.value, r.publish_status) && matchCategory(category, r.category)).length,
+    active: status === s.value,
+  }));
+  const categoryTabs = [
+    { href: href({ category: undefined }), label: "すべて", count: rows.filter((r) => matchStatus(status, r.publish_status)).length, active: !category },
+    ...categories.map((c) => ({
+      href: href({ category: c.slug }),
+      label: content.categories[c.slug].title,
+      count: rows.filter((r) => matchStatus(status, r.publish_status) && r.category === c.slug).length,
+      active: category === c.slug,
+    })),
   ];
+
+  const categoryTitles = Object.fromEntries(categories.map((c) => [c.slug, content.categories[c.slug].title])) as Record<CategorySlug, string>;
 
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-xl font-bold text-slate-50">案件</h1>
+        <h1 className="text-xl font-bold text-slate-50">事案ページ</h1>
         <Link href={`/admin/cases/new${category ? `?category=${category}` : ""}`} className={primaryButtonClass}>
           ＋ 新規作成
         </Link>
       </div>
       {searchParams.deleted === "1" && <p className="text-sm text-cyan-200">案件を削除しました。</p>}
 
-      <nav className="flex flex-wrap gap-1 text-xs" aria-label="カテゴリで絞り込み">
-        {tabs.map((tab) => (
-          <Link
-            key={tab.href}
-            href={tab.href}
-            className={`rounded-md px-3 py-1.5 ${tab.active ? "bg-cyan-400/10 text-cyan-200 ring-1 ring-inset ring-cyan-300/25" : "text-slate-400 hover:text-slate-200"}`}
-          >
-            {tab.label}
-          </Link>
-        ))}
-      </nav>
+      <div className="space-y-2">
+        <FilterTabs label="公開状態で絞り込み" tabs={statusTabs} />
+        <FilterTabs label="カテゴリで絞り込み" tabs={categoryTabs} />
+      </div>
 
-      {error && <p className="text-sm text-rose-300">読み込みに失敗しました：{error.message}</p>}
-      <ul className="panel divide-y divide-line overflow-hidden rounded-xl">
-        {(rows ?? []).length === 0 && <li className="p-6 text-center text-sm text-slate-500">案件はありません。</li>}
-        {(rows ?? []).map((row) => (
-          <li key={row.id}>
-            <Link href={`/admin/cases/${row.id}`} className="flex flex-col gap-2 px-5 py-4 hover:bg-cyan-400/[0.03] sm:flex-row sm:items-center sm:gap-4">
-              <div className="flex shrink-0 items-center gap-2">
-                <span className={`rounded-full px-2 py-0.5 text-[11px] ring-1 ring-inset ${publishBadge[row.publish_status as PublishStatus]}`}>
-                  {publishStatusLabels[row.publish_status as PublishStatus]}
-                </span>
-                <StatusBadge status={row.case_status as CaseStatus} />
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-slate-100">{row.title}</p>
-                <p className="mt-0.5 truncate font-mono text-[11px] text-slate-500">
-                  {content.categories[row.category as CategorySlug].title} ・ /{row.category}/{row.slug}
-                </p>
-              </div>
-              <span className="shrink-0 font-mono text-xs text-slate-500">更新 {formatDate(row.content_updated_on)}</span>
-            </Link>
-          </li>
-        ))}
-      </ul>
+      {error && <p className="text-sm text-rose-300">読み込みに失敗しました：{error}</p>}
+
+      {/* フィルターを変えたら選択をリセットする（非表示の案件が選択されたまま残らないようにする） */}
+      <CaseBulkPanel key={`${status}:${category ?? "all"}`} rows={visible} categoryTitles={categoryTitles} />
     </div>
+  );
+}
+
+function FilterTabs({ label, tabs }: { label: string; tabs: { href: string; label: string; count: number; active: boolean }[] }) {
+  return (
+    <nav className="flex flex-wrap gap-1 text-xs" aria-label={label}>
+      {tabs.map((tab) => (
+        <Link
+          key={tab.href + tab.label}
+          href={tab.href}
+          aria-current={tab.active ? "page" : undefined}
+          className={`rounded-md px-3 py-1.5 ${tab.active ? "bg-cyan-400/10 text-cyan-200 ring-1 ring-inset ring-cyan-300/25" : "text-slate-400 hover:text-slate-200"}`}
+        >
+          {tab.label}
+          <span className="ml-1 font-mono text-[11px] opacity-80">（{tab.count}）</span>
+        </Link>
+      ))}
+    </nav>
   );
 }

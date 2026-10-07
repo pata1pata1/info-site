@@ -15,7 +15,7 @@ export async function CategoryPage({ slug }: { slug: CategorySlug }) {
 
   return (
     <>
-      <section className="relative overflow-hidden border-b border-line">
+      <section className="relative overflow-hidden border-b border-line bg-section">
         <div className="bg-grid pointer-events-none absolute inset-0 opacity-70" aria-hidden="true" />
         <div
           className="pointer-events-none absolute -top-24 left-0 h-56 w-[36rem] max-w-full rounded-full bg-cyan-500/[0.07] blur-3xl"

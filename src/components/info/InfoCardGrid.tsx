@@ -4,13 +4,14 @@ import { InfoCard } from "./InfoCard";
 type Props = {
   items: CaseSummary[];
   showCategory?: boolean;
+  emptyMessage?: string;
 };
 
-export function InfoCardGrid({ items, showCategory = false }: Props) {
+export function InfoCardGrid({ items, showCategory = false, emptyMessage = "現在掲載している情報はありません。" }: Props) {
   if (items.length === 0) {
     return (
       <p className="panel rounded-xl border-dashed p-10 text-center text-sm text-slate-500">
-        現在掲載している情報はありません。
+        {emptyMessage}
       </p>
     );
   }

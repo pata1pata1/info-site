@@ -1,14 +1,17 @@
-import Link from "next/link";
+import { JapanMapIcon } from "@/components/info/JapanMapIcon";
+import { ButtonLink } from "@/components/ui/ButtonLink";
 import { RichText } from "@/components/ui/RichText";
 import type { HomeContent } from "@/lib/cms/types";
 
 export function HeroSection({ home }: { home: HomeContent }) {
   return (
-    <section className="relative overflow-hidden border-b border-line">
-      {/* 背景装飾：グリッド＋淡い光 */}
+    <section className="relative overflow-hidden border-b border-line bg-section">
+      {/* 背景装飾（下から）：背景画像 → 濃紺オーバーレイ → グリッド → 淡い光 */}
+      <div className="hero-art pointer-events-none absolute inset-0" aria-hidden="true" />
+      <div className="hero-overlay pointer-events-none absolute inset-0" aria-hidden="true" />
       <div className="bg-grid pointer-events-none absolute inset-0" aria-hidden="true" />
       <div
-        className="pointer-events-none absolute left-1/2 top-0 h-72 w-[42rem] max-w-full -translate-x-1/2 rounded-full bg-cyan-500/10 blur-3xl"
+        className="pointer-events-none absolute left-1/2 top-0 h-72 w-[42rem] max-w-full -translate-x-1/2 rounded-full bg-cyan-400/[0.07] blur-3xl"
         aria-hidden="true"
       />
 
@@ -22,26 +25,50 @@ export function HeroSection({ home }: { home: HomeContent }) {
           {home.siteName}
         </h1>
         <div className="glow-line mt-6 w-40 md:w-56" aria-hidden="true" />
-        <p className="mt-6 text-lg font-medium tracking-[0.15em] text-cyan-100/90 md:text-2xl">
+        <p className="mt-6 text-lg font-medium tracking-[0.15em] text-cyan-100 md:text-2xl">
           {home.tagline}
         </p>
-        <RichText source={home.description} className="mt-6 max-w-2xl text-sm leading-relaxed text-slate-400 md:text-base" />
+        <RichText source={home.description} className="mt-6 max-w-2xl text-sm leading-relaxed text-slate-300 md:text-base" />
 
-        <div className="mt-10 flex flex-wrap justify-center gap-3">
-          <Link
-            href="#categories"
-            className="inline-flex items-center rounded-lg border border-cyan-300/40 bg-cyan-500/15 px-5 py-2.5 text-sm font-semibold text-cyan-100 transition hover:border-cyan-200/60 hover:bg-cyan-500/25 hover:shadow-[0_0_24px_-6px_rgb(34_211_238/0.55)]"
-          >
+        {/* スマホでは縦に並べて幅をそろえ、sm 以上では横並び */}
+        <div className="mt-10 flex w-full max-w-xs flex-col gap-3 sm:w-auto sm:max-w-none sm:flex-row sm:flex-wrap sm:justify-center">
+          <ButtonLink href="#categories" variant="primary" icon={<GridIcon />}>
             カテゴリから探す
-          </Link>
-          <Link
-            href="#recent"
-            className="panel inline-flex items-center rounded-lg px-5 py-2.5 text-sm font-semibold text-slate-200 transition hover:border-line-strong hover:text-white"
-          >
+          </ButtonLink>
+          <ButtonLink href="/prefectures" icon={<JapanMapIcon />}>
+            都道府県から探す
+          </ButtonLink>
+          <ButtonLink href="#recent" icon={<ClockIcon />}>
             {home.recentTitle}
-          </Link>
+          </ButtonLink>
         </div>
       </div>
     </section>
+  );
+}
+
+const iconProps = {
+  viewBox: "0 0 24 24",
+  fill: "none",
+  stroke: "currentColor",
+  strokeWidth: 1.8,
+  strokeLinecap: "round",
+  strokeLinejoin: "round",
+  "aria-hidden": true,
+} as const;
+
+function GridIcon() {
+  return (
+    <svg {...iconProps}>
+      <path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z" />
+    </svg>
+  );
+}
+
+function ClockIcon() {
+  return (
+    <svg {...iconProps}>
+      <path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zm0 4.5V12l3 2" />
+    </svg>
   );
 }

@@ -20,7 +20,7 @@ export default async function AdminDashboard(props: PageProps<"/admin">) {
   ]);
 
   const cards = [
-    { href: "/admin/cases", label: "公開中の案件", value: published, note: `下書き ${drafts}件・非公開 ${privateCases}件` },
+    { href: "/admin/cases", label: "公開中の事案ページ", value: published, note: `下書き ${drafts}件・非公開 ${privateCases}件` },
     { href: "/admin/comments?status=investigating", label: "調査中のコメント", value: investigating, note: "確認してステータスを変更してください" },
     { href: "/admin/news", label: "公開中のお知らせ", value: news, note: "TOPページに表示されます" },
   ];
@@ -49,11 +49,11 @@ export default async function AdminDashboard(props: PageProps<"/admin">) {
         <h2 className="mb-2 font-bold text-slate-200">日常の運営</h2>
         <ul className="list-disc space-y-1 pl-5">
           <li>
-            <Link href="/admin/pages" className="text-cyan-300 hover:text-cyan-200">ページ文章</Link>
+            <Link href="/admin/pages" className="text-cyan-300 hover:text-cyan-200">TOP・カテゴリ</Link>
             ：サイト名・キャッチフレーズ・TOPページとカテゴリページの文章（下書き保存→公開）
           </li>
           <li>
-            <Link href="/admin/cases" className="text-cyan-300 hover:text-cyan-200">案件</Link>
+            <Link href="/admin/cases" className="text-cyan-300 hover:text-cyan-200">事案ページ</Link>
             ：個別情報ページの作成・編集・公開、案件画像（複数枚）、情報源・時系列の管理
           </li>
           <li>

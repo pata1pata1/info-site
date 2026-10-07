@@ -24,7 +24,7 @@ export function CategoryCard({ category, content, count }: Props) {
           </span>
           <h3 className="text-lg font-bold text-slate-50">{content.title}</h3>
         </div>
-        <p className="mt-4 flex-1 text-sm leading-relaxed text-slate-400">{toPlainText(content.description)}</p>
+        <p className="mt-4 flex-1 text-sm leading-relaxed text-slate-300">{toPlainText(content.description)}</p>
         <div className="mt-5 flex items-center justify-between border-t border-line pt-4 text-sm">
           <span className="text-slate-500">
             掲載 <span className="font-mono text-slate-300">{count}</span>件

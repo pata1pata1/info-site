@@ -38,7 +38,7 @@ export async function CaseDetail({ item, children }: Props) {
 
   return (
     <>
-      <section className="relative overflow-hidden border-b border-line">
+      <section className="relative overflow-hidden border-b border-line bg-section">
         <div className="bg-grid pointer-events-none absolute inset-0 opacity-70" aria-hidden="true" />
         <div
           className="pointer-events-none absolute -top-24 left-0 h-56 w-[36rem] max-w-full rounded-full bg-cyan-500/[0.07] blur-3xl"
@@ -123,7 +123,7 @@ export async function CaseDetail({ item, children }: Props) {
                   <SourceRefs ids={event.sourceIds} sources={sources} />
                 </p>
                 {event.description && (
-                  <p className="mt-1 text-sm leading-relaxed text-slate-400">{event.description}</p>
+                  <p className="mt-1 text-sm leading-relaxed text-slate-300">{event.description}</p>
                 )}
               </li>
             ))}

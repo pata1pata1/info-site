@@ -7,7 +7,7 @@ import { pageLabels } from "@/lib/admin/labels";
 import { defaultCategoryContent, defaultHomeContent } from "@/lib/cms/defaults";
 import type { PageSlug } from "@/lib/cms/types";
 
-export const metadata: Metadata = { title: "ページ文章の編集" };
+export const metadata: Metadata = { title: "TOP・カテゴリの編集" };
 
 const homeFields: PageField[] = [
   { group: "サイト共通", name: "siteName", label: "サイト名", kind: "text", required: true, hint: "ヘッダー・フッター・ブラウザのタブに表示されます。" },
@@ -52,7 +52,7 @@ export default async function AdminPageEdit(props: PageProps<"/admin/pages/[slug
   return (
     <div className="space-y-6">
       <div>
-        <Link href="/admin/pages" className="text-xs text-slate-500 hover:text-cyan-200">← ページ文章</Link>
+        <Link href="/admin/pages" className="text-xs text-slate-500 hover:text-cyan-200">← TOP・カテゴリ</Link>
         <h1 className="mt-2 text-xl font-bold text-slate-50">{pageLabels[pageSlug]}</h1>
         <p className="mt-1 text-xs text-slate-500">「下書き保存」はサイトに反映されません。「公開する」で公開中の内容が置き換わります。</p>
       </div>

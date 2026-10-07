@@ -1,63 +1,108 @@
 @import "tailwindcss";
 
+/*
+ * 配色はすべてここで管理する（深いネイビーをベースにした、落ち着いた近未来ダークUI）。
+ * コンポーネントでは slate（文字）・cyan（アクセント）・下の独自トークンのクラスを使い、
+ * 色コードを直接書かない。slate / cyan は Tailwind 既定値を濃紺背景向けに置き換えている。
+ */
 @theme {
   --font-sans: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic UI", Meiryo, system-ui, sans-serif;
 
-  /* ベースカラー（黒〜チャコール〜濃紺） */
-  --color-night: #06090f;
-  --color-night-2: #0a0f19;
-  --color-panel: rgb(14 21 34 / 0.62);
-  --color-panel-hover: rgb(18 28 45 / 0.78);
-  --color-line: rgb(148 175 210 / 0.12);
-  --color-line-strong: rgb(148 175 210 / 0.22);
+  /* 背景（暗い順：night-2 < night < section < panel） */
+  --color-night: #07131f; /* ページ全体 */
+  --color-night-2: #050c14; /* さらに暗い面（入力欄・モーダル背景・フッター） */
+  --color-section: #0a1826; /* ページ上部の見出しセクション */
+  --color-panel: rgb(13 29 44 / 0.94); /* カード #0D1D2C */
+  --color-panel-hover: rgb(17 37 56 / 0.96);
+  --color-line: #1a3448; /* カード・区切りの枠線 */
+  --color-line-strong: #27475f;
+
+  /* 文字（slate を置き換え） */
+  --color-slate-50: #f5f8fc; /* メイン見出し */
+  --color-slate-100: #e6edf5;
+  --color-slate-200: #d6e0eb;
+  --color-slate-300: #c7d3e0; /* 本文 */
+  --color-slate-400: #adbfd0; /* 説明・補足文 */
+  --color-slate-500: #94a8bc; /* 補助テキスト（日付・ラベル） */
+  --color-slate-600: #71869a; /* かなり弱い補助文字・区切り記号 */
+  --color-slate-700: #3c5368;
+
+  /* アクセント（cyan を置き換え。リンク・強調・フォーカスに限定して使う） */
+  --color-cyan-50: #e8fafd;
+  --color-cyan-100: #c9f1f9;
+  --color-cyan-200: #79dff0; /* 淡い青（ホバー・見出しアクセント） */
+  --color-cyan-300: #48d7f2; /* アクセントのシアン（リンク） */
 }
 
 :root {
   color-scheme: dark;
 }
 
-/* 背景：濃紺寄りのごく薄いグラデーション＋上部の淡い光 */
+/* 背景：濃紺のごく薄いグラデーション＋上部の控えめな光 */
 body {
   background-color: var(--color-night);
   background-image:
-    radial-gradient(1200px 600px at 50% -200px, rgb(34 211 238 / 0.08), transparent 70%),
-    radial-gradient(900px 500px at 100% 0%, rgb(59 130 246 / 0.06), transparent 70%),
-    linear-gradient(180deg, #080c14 0%, var(--color-night) 40%, #05070c 100%);
+    radial-gradient(1200px 600px at 50% -240px, rgb(72 215 242 / 0.06), transparent 70%),
+    radial-gradient(900px 500px at 100% 0%, rgb(56 120 200 / 0.06), transparent 70%),
+    linear-gradient(180deg, var(--color-section) 0%, var(--color-night) 40%);
   background-attachment: fixed;
+  color: var(--color-slate-300);
 }
 
-/* 半透明のダークパネル（カード・リスト） */
+/* カード・リストの面（濃紺のパネル＋細い枠線） */
 @utility panel {
   background-color: var(--color-panel);
   border: 1px solid var(--color-line);
   backdrop-filter: blur(8px);
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.03);
+  box-shadow: inset 0 1px 0 rgb(121 223 240 / 0.04);
 }
 
-/* ホバー時にわずかに発光させる */
+/* ホバー時にわずかに明るくする（発光は控えめ） */
 @utility panel-glow {
   transition: border-color 200ms, background-color 200ms, box-shadow 200ms;
   &:hover {
     background-color: var(--color-panel-hover);
-    border-color: rgb(103 232 249 / 0.28);
+    border-color: rgb(72 215 242 / 0.32);
     box-shadow:
-      inset 0 1px 0 rgb(255 255 255 / 0.04),
-      0 0 0 1px rgb(103 232 249 / 0.06),
-      0 8px 32px -12px rgb(34 211 238 / 0.28);
+      inset 0 1px 0 rgb(121 223 240 / 0.05),
+      0 8px 28px -14px rgb(72 215 242 / 0.25);
   }
 }
 
-/* 細いグリッド線（外側に向かってフェードアウト） */
+/* 細いグリッド線（青系・低透明度。外側に向かってフェードアウト） */
 @utility bg-grid {
   background-image:
-    linear-gradient(to right, rgb(148 175 210 / 0.07) 1px, transparent 1px),
-    linear-gradient(to bottom, rgb(148 175 210 / 0.07) 1px, transparent 1px);
+    linear-gradient(to right, rgb(96 150 205 / 0.07) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(96 150 205 / 0.07) 1px, transparent 1px);
   background-size: 40px 40px;
   mask-image: radial-gradient(ellipse 70% 70% at 50% 40%, #000 30%, transparent 100%);
 }
 
-/* 1px の発光ライン */
+/*
+ * TOPヒーローの背景画像（public/images/hero-dog.webp：wan.PNG を濃紺デュオトーンに加工したもの）。
+ * 装飾なので不透明度を低くし、スマホでは文字の背後に来るためさらに弱める。
+ */
+@utility hero-art {
+  background-image: url("/images/hero-dog.webp");
+  background-size: cover;
+  background-position: 18% center;
+  opacity: 0.4;
+  @media (width >= 48rem) {
+    background-position: center;
+    opacity: 0.6;
+  }
+}
+
+/* ヒーロー画像の上に重ねる濃紺のオーバーレイ（中央の文字の背後を濃くし、下端はページ背景へなじませる） */
+@utility hero-overlay {
+  background:
+    radial-gradient(ellipse 55% 60% at 50% 50%, color-mix(in srgb, var(--color-night) 72%, transparent), transparent 80%),
+    linear-gradient(90deg, color-mix(in srgb, var(--color-night) 45%, transparent), color-mix(in srgb, var(--color-night) 20%, transparent)),
+    linear-gradient(to bottom, color-mix(in srgb, var(--color-night) 30%, transparent) 0%, transparent 35%, transparent 65%, var(--color-night) 100%);
+}
+
+/* 1px の細いアクセントライン */
 @utility glow-line {
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgb(103 232 249 / 0.45), transparent);
+  background: linear-gradient(90deg, transparent, rgb(72 215 242 / 0.4), transparent);
 }

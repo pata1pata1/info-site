@@ -31,7 +31,7 @@ export function InfoCard({ item, showCategory = false }: Props) {
         <h3 className="mt-3 text-base font-bold leading-snug text-slate-50 transition-colors group-hover:text-cyan-100">
           {item.title}
         </h3>
-        <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-slate-400">
+        <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-slate-300">
           {item.summary}
         </p>
 
