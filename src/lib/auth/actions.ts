@@ -1,9 +1,9 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { safeNextPath } from "../comments/validation";
+import { siteOrigin } from "../site-origin";
 import { createClient } from "../supabase/server";
 
 export type AuthFormState = {
@@ -17,13 +17,6 @@ const PASSWORD_MIN = 8;
 const DISPLAY_NAME_MAX = 30;
 
 const unavailable: AuthFormState = { ok: false, message: "現在、会員機能は利用できません（準備中）。" };
-
-async function siteOrigin(): Promise<string> {
-  const configured = process.env.NEXT_PUBLIC_SITE_URL;
-  if (configured) return configured.replace(/\/$/, "");
-  const h = await headers();
-  return h.get("origin") ?? `https://${h.get("host")}`;
-}
 
 function validateDisplayName(value: string): string | null {
   if (value.length > DISPLAY_NAME_MAX) return `表示名は${DISPLAY_NAME_MAX}文字以内で入力してください。`;

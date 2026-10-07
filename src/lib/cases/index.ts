@@ -121,24 +121,30 @@ export const getCase = cache(async <C extends CategorySlug>(category: C, slug: s
     return (seedCases.find((c) => c.category === category && c.slug === slug) as CaseOf<C> | undefined) ?? null;
   }
 
-  const { data, error } = await supabase
-    .from("cases")
-    .select("*, case_sources(*), case_timeline_events(*), case_facts(*)")
-    .eq("category", category)
-    .eq("slug", slug)
-    .eq("publish_status", "published")
-    .maybeSingle();
+  const load = (relations: string) =>
+    supabase
+      .from("cases")
+      .select(`*, ${relations}`)
+      .eq("category", category)
+      .eq("slug", slug)
+      .eq("publish_status", "published")
+      .maybeSingle();
+
+  const children = "case_sources(*), case_timeline_events(*), case_facts(*)";
+  let { data, error } = await load(`${children}, case_images(*)`);
+  if (error) {
+    // case_images 作成前（マイグレーション 20261007000004 未実行）でもページを表示できるようにする
+    console.warn("[cases] case_images を読み込めないため旧メイン画像で表示します（マイグレーション 20261007000004 未実行？）", error.message);
+    ({ data, error } = await load(children));
+  }
   if (error) {
     console.error("[cases] failed to load case", error.message);
     return null;
   }
   if (!data) return null;
 
-  const row = data as CaseRow;
-  const imageUrl = row.main_image_path
-    ? supabase.storage.from(CASE_IMAGE_BUCKET).getPublicUrl(row.main_image_path).data.publicUrl
-    : null;
-  return rowToCase(row, imageUrl) as CaseOf<C>;
+  const publicUrl = (path: string) => supabase.storage.from(CASE_IMAGE_BUCKET).getPublicUrl(path).data.publicUrl;
+  return rowToCase(data as unknown as CaseRow, publicUrl) as CaseOf<C>;
 });
 
 /** 静的生成する個別ページの slug 一覧 */

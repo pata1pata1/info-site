@@ -26,6 +26,7 @@ export type CaseRow = {
   initiatives: string[];
   listing_reason: string | null;
   certifications: { name: string; grantor: string; date: string; sourceKeys?: string[] }[];
+  /** 旧：メイン画像（1枚）。case_images へ移行済み。case_images が未作成の環境でのみ使う */
   main_image_path: string | null;
   main_image_alt: string | null;
   main_image_caption: string | null;
@@ -54,13 +55,42 @@ export type CaseRow = {
     sort_order: number;
   }[];
   case_facts?: { body: string; source_keys: string[]; sort_order: number }[];
+  case_images?: CaseImageRow[];
+};
+
+export type CaseImageRow = {
+  id: string;
+  storage_path: string;
+  alt: string;
+  caption: string | null;
+  source_name: string | null;
+  source_url: string | null;
+  width: number | null;
+  height: number | null;
+  sort_order: number;
 };
 
 const bySortOrder = (a: { sort_order: number }, b: { sort_order: number }) => a.sort_order - b.sort_order;
 const opt = (v: string | null | undefined) => v || undefined;
 
-/** DB の行を表示用の Case に変換する */
-export function rowToCase(row: CaseRow, imageUrl: string | null): Case {
+/** DB の行を表示用の Case に変換する。publicUrl は Storage のパスから公開URLを作る関数 */
+export function rowToCase(row: CaseRow, publicUrl: (path: string) => string): Case {
+  // case_images が無い（マイグレーション前の）環境では旧メイン画像を1枚目として扱う
+  const imageRows: CaseImageRow[] =
+    row.case_images ??
+    (row.main_image_path
+      ? [{
+          id: `legacy-${row.id}`,
+          storage_path: row.main_image_path,
+          alt: row.main_image_alt ?? "",
+          caption: row.main_image_caption,
+          source_name: row.main_image_source_name,
+          source_url: row.main_image_source_url,
+          width: row.main_image_width,
+          height: row.main_image_height,
+          sort_order: 0,
+        }]
+      : []);
   const certifications: Certification[] = (row.certifications ?? []).map((c) => ({
     name: c.name,
     grantor: c.grantor,
@@ -78,18 +108,16 @@ export function rowToCase(row: CaseRow, imageUrl: string | null): Case {
     statusNote: opt(row.status_note),
     currentStatus: row.current_status,
     updatedAt: row.content_updated_on,
-    mainImage:
-      imageUrl && row.main_image_path
-        ? {
-            url: imageUrl,
-            alt: row.main_image_alt || row.title,
-            caption: opt(row.main_image_caption),
-            sourceName: opt(row.main_image_source_name),
-            sourceUrl: opt(row.main_image_source_url),
-            width: row.main_image_width ?? undefined,
-            height: row.main_image_height ?? undefined,
-          }
-        : undefined,
+    images: [...imageRows].sort(bySortOrder).map((img) => ({
+      id: img.id,
+      url: publicUrl(img.storage_path),
+      alt: img.alt || row.title,
+      caption: opt(img.caption),
+      sourceName: opt(img.source_name),
+      sourceUrl: opt(img.source_url),
+      width: img.width ?? undefined,
+      height: img.height ?? undefined,
+    })),
     sources: [...(row.case_sources ?? [])].sort(bySortOrder).map((s) => ({
       id: s.key,
       publisher: s.publisher,

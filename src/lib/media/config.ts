@@ -30,8 +30,10 @@ export const extensionByMime: Record<string, string> = {
   "image/webp": "webp",
 };
 
-/** 案件メイン画像（管理者のみ） */
+/** 案件画像（管理者のみ・1案件に複数枚） */
 export const CASE_IMAGE_BUCKET = "case-images";
+/** 1案件あたりの画像の上限（DB 側のトリガーと同じ値） */
+export const MAX_CASE_IMAGES = 20;
 export const caseImageRule: MediaRule = {
   mimeTypes: ["image/jpeg", "image/png", "image/webp"],
   maxBytes: 10 * 1024 * 1024,

@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { requireAdminPage } from "@/lib/admin/auth";
 
-export default async function AdminDashboard() {
+export default async function AdminDashboard(props: PageProps<"/admin">) {
   const { supabase } = await requireAdminPage("/admin");
+  const searchParams = await props.searchParams;
 
   const count = async (table: string, filter?: [string, string]) => {
     let query = supabase.from(table).select("*", { count: "exact", head: true });
@@ -27,6 +28,11 @@ export default async function AdminDashboard() {
   return (
     <div className="space-y-8">
       <h1 className="text-xl font-bold text-slate-50">ダッシュボード</h1>
+      {searchParams.welcome === "1" && (
+        <p className="rounded-lg bg-cyan-400/[0.06] px-4 py-3 text-sm text-cyan-100 ring-1 ring-inset ring-cyan-300/25">
+          管理者の招待を受け取りました。管理画面へようこそ。
+        </p>
+      )}
       <ul className="grid gap-4 sm:grid-cols-3">
         {cards.map((card) => (
           <li key={card.label}>
@@ -48,7 +54,7 @@ export default async function AdminDashboard() {
           </li>
           <li>
             <Link href="/admin/cases" className="text-cyan-300 hover:text-cyan-200">案件</Link>
-            ：個別情報ページの作成・編集・公開、メイン画像、情報源・時系列の管理
+            ：個別情報ページの作成・編集・公開、案件画像（複数枚）、情報源・時系列の管理
           </li>
           <li>
             <Link href="/admin/news" className="text-cyan-300 hover:text-cyan-200">お知らせ</Link>

@@ -8,7 +8,7 @@ import { formatDate, formatDateJa } from "@/lib/format";
 import { getSiteContent } from "@/lib/cms/content";
 import { getCategory } from "@/lib/site";
 import { RichText } from "@/components/ui/RichText";
-import { CaseMainImage } from "./CaseMainImage";
+import { CaseGallery } from "./CaseGallery";
 import { CaseFacts } from "./CaseFacts";
 import { CaseNotice } from "./CaseNotice";
 import { DetailSection } from "./DetailSection";
@@ -22,12 +22,18 @@ type Props = {
 
 /**
  * 個別情報ページ共通のテンプレート。
- * パンくず → カテゴリ・ステータス → タイトル → メイン画像 → 基本情報 → 概要 → 時系列
- * → 確認されている事実 → 現在の状況 → 情報源 → NOTICE / 掲載方針 →（情報提供コメント）
+ * パンくず → カテゴリ・ステータス → タイトル → 案件画像ギャラリー → 基本情報（名前・地域・発生日）
+ * → 事件内容（優良事業者は「掲載内容」。概要を含む） → 現在の状況 → 情報提供コメント → 時系列 → 情報源・参考資料 → NOTICE / 掲載方針
  */
 export async function CaseDetail({ item, children }: Props) {
   const category = getCategory(item.category);
   const text = (await getSiteContent()).categories[item.category];
+  // 動物虐待者情報は人物名、事業者カテゴリは事業者名
+  const subjectName = item.category === "animal-abuse" ? item.personName : item.businessName;
+  // 発生日は動物虐待者情報の案件データにのみある
+  const occurredAt = item.category === "animal-abuse" ? item.occurredAt : undefined;
+  // 優良事業者は「事件」ではないため見出しを変える
+  const detailHeading = item.category === "good-business" ? { title: "掲載内容", en: "LISTING DETAILS" } : { title: "事件内容", en: "CASE DETAILS" };
   const sources = item.sources;
 
   return (
@@ -65,15 +71,13 @@ export async function CaseDetail({ item, children }: Props) {
           </h1>
           <div className={`mt-5 h-0.5 w-32 rounded-full ${category.theme.accentBar}`} aria-hidden="true" />
 
-          {item.mainImage && <CaseMainImage image={item.mainImage} />}
+          <CaseGallery images={item.images ?? []} />
 
+          {/* 基本情報（名前・地域・発生日）。値のない項目は表示しない。ステータスは上部のバッジで表示済み */}
           <dl className="mt-6 grid grid-cols-2 gap-3 text-sm sm:grid-cols-3">
-            <HeaderMeta label="ステータス" value={item.status} />
-            <HeaderMeta label="地域" value={item.region} />
-            <HeaderMeta
-              label="最終更新日"
-              value={<time dateTime={item.updatedAt} className="font-mono">{formatDate(item.updatedAt)}</time>}
-            />
+            {subjectName && <HeaderMeta label="名前" value={subjectName} />}
+            {item.region && <HeaderMeta label="地域" value={item.region} />}
+            {occurredAt && <HeaderMeta label="発生日" value={occurredAt} />}
           </dl>
           {item.statusNote && (
             <p className="mt-4 text-xs leading-relaxed text-slate-400">
@@ -85,9 +89,22 @@ export async function CaseDetail({ item, children }: Props) {
       </section>
 
       <div className="mx-auto max-w-4xl space-y-10 px-4 py-10">
-        <DetailSection title="概要" en="SUMMARY">
-          <RichText source={item.summary} className="text-sm leading-relaxed text-slate-300 md:text-base" />
+        <DetailSection title={detailHeading.title} en={detailHeading.en}>
+          <CaseFacts item={item} />
         </DetailSection>
+
+        <DetailSection title="現在の状況" en="CURRENT STATUS">
+          <div className="panel rounded-xl p-5">
+            <div className="flex items-center gap-2">
+              <StatusBadge status={item.status} />
+              <span className="font-mono text-xs text-slate-500">{formatDate(item.updatedAt)} 時点</span>
+            </div>
+            <RichText source={item.currentStatus} className="mt-3 text-sm leading-relaxed text-slate-300" />
+          </div>
+        </DetailSection>
+
+        {/* 情報提供コメント（ユーザー投稿）。運営が確認した本文とは区切って表示する */}
+        {children && <div className="border-y border-line py-10">{children}</div>}
 
         <DetailSection title="時系列" en="TIMELINE">
           <ol className="relative space-y-6 border-l border-line-strong pl-6">
@@ -113,20 +130,6 @@ export async function CaseDetail({ item, children }: Props) {
           </ol>
         </DetailSection>
 
-        <DetailSection title="確認されている事実" en="CONFIRMED FACTS">
-          <CaseFacts item={item} />
-        </DetailSection>
-
-        <DetailSection title="現在の状況" en="CURRENT STATUS">
-          <div className="panel rounded-xl p-5">
-            <div className="flex items-center gap-2">
-              <StatusBadge status={item.status} />
-              <span className="font-mono text-xs text-slate-500">{formatDate(item.updatedAt)} 時点</span>
-            </div>
-            <RichText source={item.currentStatus} className="mt-3 text-sm leading-relaxed text-slate-300" />
-          </div>
-        </DetailSection>
-
         <DetailSection title="情報源・参考資料" en="SOURCES">
           <SourceList sources={sources} />
           <p className="mt-3 text-xs leading-relaxed text-slate-500">
@@ -136,8 +139,6 @@ export async function CaseDetail({ item, children }: Props) {
         </DetailSection>
 
         <CaseNotice text={text.policy} />
-
-        {children && <div className="border-t border-line pt-10">{children}</div>}
       </div>
     </>
   );

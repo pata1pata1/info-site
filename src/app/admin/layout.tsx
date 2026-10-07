@@ -19,8 +19,11 @@ export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
           <p className="font-mono text-[11px] tracking-[0.25em] text-cyan-200/60">ADMIN CONSOLE</p>
           <p className="mt-1 text-lg font-bold tracking-wide text-slate-50">管理画面</p>
         </div>
-        <Link href="/" className="text-xs text-slate-400 hover:text-cyan-200" target="_blank">
-          サイトを表示 ↗
+        <Link
+          href="/"
+          className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold text-cyan-100 ring-1 ring-inset ring-cyan-300/30 transition hover:bg-cyan-400/10"
+        >
+          サイトを見る →
         </Link>
       </div>
       <div className="grid gap-6 md:grid-cols-[12rem_1fr]">

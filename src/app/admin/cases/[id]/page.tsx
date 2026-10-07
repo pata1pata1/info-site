@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CaseEditor } from "@/components/admin/CaseEditor";
-import { CaseImagePanel } from "@/components/admin/CaseImagePanel";
+import { CaseImagesPanel, type AdminCaseImage } from "@/components/admin/CaseImagesPanel";
 import { DeleteCaseButton } from "@/components/admin/DeleteButtons";
 import { requireAdminPage } from "@/lib/admin/auth";
 import { rowToForm } from "@/lib/admin/case-form";
@@ -22,16 +22,22 @@ export default async function AdminCaseEdit(props: PageProps<"/admin/cases/[id]"
   if (!UUID.test(id)) notFound();
   const searchParams = await props.searchParams;
 
-  const [{ data }, content] = await Promise.all([
+  const [{ data }, images, content] = await Promise.all([
     supabase.from("cases").select("*, case_sources(*), case_timeline_events(*), case_facts(*)").eq("id", id).maybeSingle(),
+    supabase.from("case_images").select("id, storage_path, alt, caption, source_name, source_url").eq("case_id", id).order("sort_order"),
     getSiteContent(),
   ]);
   if (!data) notFound();
   const row = data as CaseRow;
   const labels = Object.fromEntries(categories.map((c) => [c.slug, content.categories[c.slug].title])) as Record<CategorySlug, string>;
-  const imageUrl = row.main_image_path
-    ? supabase.storage.from(CASE_IMAGE_BUCKET).getPublicUrl(row.main_image_path).data.publicUrl
-    : null;
+  const caseImages: AdminCaseImage[] = (images.data ?? []).map((img) => ({
+    id: img.id,
+    url: supabase.storage.from(CASE_IMAGE_BUCKET).getPublicUrl(img.storage_path).data.publicUrl,
+    alt: img.alt ?? "",
+    caption: img.caption ?? "",
+    source_name: img.source_name ?? "",
+    source_url: img.source_url ?? "",
+  }));
 
   return (
     <div className="space-y-6">
@@ -49,28 +55,23 @@ export default async function AdminCaseEdit(props: PageProps<"/admin/cases/[id]"
       </div>
       {searchParams.created === "1" && (
         <p className="rounded-lg bg-cyan-400/[0.06] px-4 py-3 text-sm text-cyan-100 ring-1 ring-inset ring-cyan-300/25">
-          案件を作成しました。続けてメイン画像を登録できます。
+          案件を作成しました。続けて案件画像を登録できます。
         </p>
       )}
 
-      <CaseEditor initial={rowToForm(row)} categoryLabels={labels} />
-
-      <CaseImagePanel
-        caseId={row.id}
-        current={{
-          url: imageUrl,
-          alt: row.main_image_alt ?? "",
-          caption: row.main_image_caption ?? "",
-          sourceName: row.main_image_source_name ?? "",
-          sourceUrl: row.main_image_source_url ?? "",
-        }}
+      <CaseEditor
+        initial={rowToForm(row)}
+        categoryLabels={labels}
+        imagesSlot={
+          <CaseImagesPanel caseId={row.id} images={caseImages} loadError={images.error?.message} />
+        }
       />
 
       <section className="panel flex flex-wrap items-center justify-between gap-3 rounded-xl border-rose-400/20 p-5">
         <div>
           <h2 className="text-sm font-bold text-rose-200">案件の削除</h2>
           <p className="mt-1 text-xs text-slate-500">
-            本文・情報源・時系列・メイン画像を完全に削除します。一時的に隠す場合は公開状態を「非公開」にしてください。
+            本文・情報源・時系列・案件画像を完全に削除します。一時的に隠す場合は公開状態を「非公開」にしてください。
           </p>
         </div>
         <DeleteCaseButton id={row.id} />

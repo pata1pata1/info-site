@@ -76,8 +76,9 @@ export const statusOptions = {
   "good-business": ["公的表彰", "公的認定", "第三者認証", "報道"],
 } as const satisfies Record<CategorySlug, readonly CaseStatus[]>;
 
-/** 案件のメイン画像（タイトル直下に16:9で表示。未登録なら表示しない） */
-export type MainImage = {
+/** 案件画像（タイトル直下のギャラリーに表示。トリミングせず全体を表示する） */
+export type CaseImage = {
+  id?: string;
   url: string;
   alt: string;
   caption?: string;
@@ -94,7 +95,8 @@ type CaseBase = {
   title: string;
   /** 一覧カード・概要欄に表示する要約（簡易リッチテキスト） */
   summary: string;
-  mainImage?: MainImage;
+  /** 案件画像（並び順どおり。未登録なら空・ギャラリー自体を表示しない） */
+  images?: CaseImage[];
   /** 都道府県・市区町村程度まで */
   region: string;
   animalType: string;
