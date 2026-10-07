@@ -7,7 +7,7 @@ import { InfoCardGrid } from "./InfoCardGrid";
 import { CategoryIcon } from "./CategoryIcon";
 import { CaseNotice } from "@/components/case/CaseNotice";
 
-/** 各カテゴリページ共通のテンプレート（ページタイトル・説明・情報一覧） */
+/** 各カテゴリページ共通のテンプレート（ページタイトル・説明・情報一覧・掲載方針） */
 export async function CategoryPage({ slug }: { slug: CategorySlug }) {
   const category = getCategory(slug);
   const [content, items] = await Promise.all([getSiteContent(), listCaseSummaries(slug)]);
@@ -54,12 +54,16 @@ export async function CategoryPage({ slug }: { slug: CategorySlug }) {
             <span className="font-mono text-slate-300">{items.length}</span>件
           </p>
         </div>
-        <div className="mb-6">
-          <CaseNotice text={text.policy} />
-        </div>
         {/* TODO: 地域・事業者名・人物名・動物種別・投稿日・ステータスでの絞り込みをここに追加予定 */}
         <InfoCardGrid items={items} />
       </section>
+
+      {/* その他のコンテンツはこの上に追加し、NOTICE / 掲載方針は常にページ最下部に置く */}
+      {text.policy.trim() && (
+        <section className="mx-auto max-w-6xl px-4 pb-12">
+          <CaseNotice text={text.policy} />
+        </section>
+      )}
     </>
   );
 }
