@@ -16,16 +16,24 @@ export async function GET(request: NextRequest) {
   const type = searchParams.get("type") as EmailOtpType | null;
   const code = searchParams.get("code");
 
+  const loginUrl = (query: string) =>
+    new URL(`/login?${query}${next !== "/" ? `&next=${encodeURIComponent(next)}` : ""}`, origin);
+
   const supabase = await createClient();
-  if (supabase) {
+  // Supabase 側で確認に失敗した場合は error / error_code 付きで戻ってくる
+  if (supabase && !searchParams.has("error") && !searchParams.has("error_code")) {
     if (tokenHash && type) {
       const { error } = await supabase.auth.verifyOtp({ type, token_hash: tokenHash });
-      if (!error) return NextResponse.redirect(new URL(`/account?registered=1&next=${encodeURIComponent(next)}`, origin));
+      if (!error) {
+        // 確認で作られたセッションは破棄し、ログイン画面で改めてログインしてもらう
+        await supabase.auth.signOut({ scope: "local" });
+        return NextResponse.redirect(loginUrl("confirmed=1"));
+      }
     } else if (code) {
-      const { error } = await supabase.auth.exchangeCodeForSession(code);
-      if (!error) return NextResponse.redirect(new URL(`/account?registered=1&next=${encodeURIComponent(next)}`, origin));
+      // code は Supabase がメール確認に成功したときだけ付けて戻すので、確認完了として扱う
+      return NextResponse.redirect(loginUrl("confirmed=1"));
     }
   }
 
-  return NextResponse.redirect(new URL("/login?error=confirm", origin));
+  return NextResponse.redirect(loginUrl("error=confirm"));
 }

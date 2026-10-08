@@ -14,14 +14,17 @@ export default async function LoginPage(props: PageProps<"/login">) {
   const next = safeNextPath(searchParams.next);
   if (await getCurrentUser()) redirect(next);
 
-  const initialMessage =
-    searchParams.error === "confirm"
-      ? "確認リンクが無効か、有効期限が切れています。再度ログインするか、会員登録をやり直してください。"
-      : undefined;
+  // 確認メールのリンクを開いた後に来た場合の案内（登録自体は完了していることが多いため、エラーとしては扱わない）
+  const notice =
+    searchParams.confirmed === "1"
+      ? "メールアドレスの確認が完了しました。登録したメールアドレスとパスワードでログインしてください。"
+      : searchParams.error === "confirm"
+        ? "会員登録がお済みの方は、そのままログインしてください。"
+        : undefined;
 
   return (
     <AuthShell title="ログイン" en="SIGN IN" lead="情報提供コメントの書き込みには、メールアドレスでの会員登録とログインが必要です。">
-      {isSupabaseConfigured() ? <LoginForm next={next} initialMessage={initialMessage} /> : <SetupNotice />}
+      {isSupabaseConfigured() ? <LoginForm next={next} notice={notice} /> : <SetupNotice />}
     </AuthShell>
   );
 }
