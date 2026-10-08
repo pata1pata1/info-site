@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import { cache } from "react";
 import { isSupabaseConfigured, supabaseKey, supabaseUrl } from "./config";
 
 /** Server Component / Server Function / Route Handler 用のクライアント。未設定時は null */
@@ -23,10 +24,10 @@ export async function createClient() {
   });
 }
 
-/** ログイン中のユーザー（未ログイン・未設定時は null） */
-export async function getCurrentUser() {
+/** ログイン中のユーザー（未ログイン・未設定時は null）。同じリクエスト内の複数回の呼び出しは1回にまとめる */
+export const getCurrentUser = cache(async () => {
   const supabase = await createClient();
   if (!supabase) return null;
   const { data } = await supabase.auth.getUser();
   return data.user;
-}
+});

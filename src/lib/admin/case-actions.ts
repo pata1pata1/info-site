@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { CASE_IMAGE_BUCKET, MAX_CASE_IMAGES, caseImageRule, extensionByMime } from "../media/config";
 import { ImageValidationError, readImageSize, sanitizeImage, type SanitizedImage } from "../media/sanitize";
 import { requireAdminAction, type ActionState } from "./auth";
-import { normalizeCase, validateCase, type CaseFormValues } from "./case-form";
+import { ANIMAL_POLICE_NOTE_MAX, normalizeCase, validateCase, type CaseFormValues } from "./case-form";
 import { revalidatePublicSite } from "./revalidate";
 
 /** 案件の保存（新規作成・更新）。本文・情報源・時系列・事実を1トランザクションで保存する */
@@ -17,17 +17,33 @@ export async function saveCase(_prev: ActionState, formData: FormData): Promise<
   }
 
   const errors = validateCase(values);
+  if ((values.animal_police_note ?? "").length > ANIMAL_POLICE_NOTE_MAX) errors.push(`アニマルポリスは${ANIMAL_POLICE_NOTE_MAX}文字以内で入力してください。`);
   if (errors.length > 0) return { ok: false, message: "入力内容を確認してください。", errors };
+
+  // 「アニマルポリス」は公開用の cases ではなく管理者専用の case_admin_notes に保存する
+  const { animal_police_note: animalPoliceNote, ...caseValues } = values;
 
   let id: string;
   try {
     const { supabase } = await requireAdminAction();
-    const { data, error } = await supabase.rpc("admin_save_case", { payload: values });
+    const { data, error } = await supabase.rpc("admin_save_case", { payload: caseValues });
     if (error) {
       if (error.code === "23505") return { ok: false, message: "同じカテゴリに同じURL用ID（slug）の事案があります。" };
       throw error;
     }
     id = data as string;
+
+    // 空欄にした場合は行を削除し、未入力の事案に空の行を作らない（読み込みに失敗していた場合は触らない）
+    const { error: noteError } =
+      animalPoliceNote === undefined
+        ? { error: null }
+        : animalPoliceNote
+          ? await supabase.from("case_admin_notes").upsert({ case_id: id, animal_police_note: animalPoliceNote }, { onConflict: "case_id" })
+          : await supabase.from("case_admin_notes").delete().eq("case_id", id);
+    if (noteError) {
+      console.error("[admin] saveCase animal police note failed", noteError);
+      return { ok: false, message: "事案は保存しましたが、アニマルポリスの保存に失敗しました。もう一度保存してください。" };
+    }
   } catch (e) {
     console.error("[admin] saveCase failed", e);
     return { ok: false, message: "保存に失敗しました。管理者権限とネットワークを確認してください。" };

@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import { AdminInviteForm } from "@/components/admin/AdminInviteForm";
-import { RemoveAdminButton, RevokeInviteButton } from "@/components/admin/AdminUserButtons";
+import { AdminNicknameForm, RemoveAdminButton, RevokeInviteButton } from "@/components/admin/AdminUserButtons";
 import { Fieldset } from "@/components/admin/ui";
 import { requireAdminPage } from "@/lib/admin/auth";
+import { adminDisplayName } from "@/lib/admin/display-name";
 import { inviteDisplayStatus, type InviteStatus } from "@/lib/admin/invites";
 
-export const metadata: Metadata = { title: "管理者" };
+export const metadata: Metadata = { title: "管理者追加" };
 
 const dateTime = new Intl.DateTimeFormat("ja-JP", { timeZone: "Asia/Tokyo", dateStyle: "medium", timeStyle: "short" });
 const fmt = (value: string | null) => (value ? dateTime.format(new Date(value)) : "—");
@@ -44,32 +45,45 @@ export default async function AdminAdminsPage() {
   const admins = (adminData ?? []) as AdminRow[];
   const invites = (inviteData ?? []) as InviteRow[];
   const emailById = new Map(admins.map((a) => [a.user_id, a.email]));
+  // ニックネームはマイページの表示名（profiles.display_name）と同じ項目
+  const { data: profiles } = admins.length
+    ? await supabase.from("profiles").select("id, display_name").in("id", admins.map((a) => a.user_id))
+    : { data: [] };
+  const nicknameById = new Map((profiles ?? []).map((p) => [p.id as string, p.display_name as string | null]));
 
   const loadError = adminError ?? inviteError;
 
   return (
     <div className="space-y-6">
-      <h1 className="text-xl font-bold text-slate-50">管理者</h1>
+      <h1 className="text-xl font-bold text-slate-50">管理者追加</h1>
       {loadError && (
         <p className="rounded-lg bg-amber-400/[0.06] px-4 py-3 text-sm text-amber-100 ring-1 ring-inset ring-amber-300/25">
           読み込みに失敗しました。Supabase で <code className="font-mono">20261007000005_admin_invites.sql</code> を実行済みか確認してください。（{loadError.message}）
         </p>
       )}
 
-      <Fieldset legend={`管理者一覧（${admins.length}人）`} description="自分自身の権限は解除できません。また、管理者が0人になる解除はできません。">
+      <Fieldset legend={`管理者一覧（${admins.length}人）`} description="自分自身の権限は解除できません。また、管理者が0人になる解除はできません。ニックネームは各自が自分の分を設定します（管理者メモの投稿者名・マイページの表示名と共通）。">
         <ul className="divide-y divide-line overflow-hidden rounded-lg border border-line">
           {admins.map((admin) => {
             const self = admin.user_id === userId;
+            const nickname = nicknameById.get(admin.user_id) ?? null;
+            const name = adminDisplayName(nickname, admin.email);
             return (
               <li key={admin.user_id} className="flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3 text-sm">
                 <div className="min-w-0 flex-1">
-                  <p className="truncate font-medium text-slate-100">
-                    {admin.email}
-                    {self && <span className="ml-2 rounded-full bg-cyan-400/10 px-2 py-0.5 text-[11px] text-cyan-200 ring-1 ring-inset ring-cyan-300/25">あなた</span>}
+                  <p className="truncate text-base font-semibold text-slate-50">
+                    {name.primary}
+                    {self && <span className="ml-2 rounded-full bg-cyan-400/10 px-2 py-0.5 text-[11px] font-normal text-cyan-200 ring-1 ring-inset ring-cyan-300/25">あなた</span>}
                   </p>
+                  {name.secondary && <p className="truncate text-xs text-slate-400">{name.secondary}</p>}
                   <p className="mt-0.5 text-xs text-slate-500">
                     登録：{fmt(admin.created_at)} ／ 最終ログイン：{fmt(admin.last_sign_in_at)}
                   </p>
+                  {self && (
+                    <div className="mt-2">
+                      <AdminNicknameForm current={nickname} />
+                    </div>
+                  )}
                 </div>
                 <span className="rounded-full bg-emerald-400/10 px-2 py-0.5 text-[11px] text-emerald-200 ring-1 ring-inset ring-emerald-300/30">有効</span>
                 {!self && admins.length > 1 && <RemoveAdminButton userId={admin.user_id} email={admin.email} />}

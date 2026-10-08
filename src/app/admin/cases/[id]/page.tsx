@@ -5,6 +5,7 @@ import { CaseEditor } from "@/components/admin/CaseEditor";
 import { CaseImagesPanel, type AdminCaseImage } from "@/components/admin/CaseImagesPanel";
 import { DeleteCaseButton } from "@/components/admin/DeleteButtons";
 import { requireAdminPage } from "@/lib/admin/auth";
+import { getAnimalPoliceNote } from "@/lib/admin/case-admin-notes";
 import { rowToForm } from "@/lib/admin/case-form";
 import type { CaseRow } from "@/lib/cases/mapper";
 import { getSiteContent } from "@/lib/cms/content";
@@ -22,10 +23,11 @@ export default async function AdminCaseEdit(props: PageProps<"/admin/cases/[id]"
   if (!UUID.test(id)) notFound();
   const searchParams = await props.searchParams;
 
-  const [{ data }, images, content] = await Promise.all([
+  const [{ data }, images, content, animalPolice] = await Promise.all([
     supabase.from("cases").select("*, case_sources(*), case_timeline_events(*), case_facts(*)").eq("id", id).maybeSingle(),
     supabase.from("case_images").select("id, storage_path, alt, caption, source_name, source_url").eq("case_id", id).order("sort_order"),
     getSiteContent(),
+    getAnimalPoliceNote(supabase, id),
   ]);
   if (!data) notFound();
   const row = data as CaseRow;
@@ -60,7 +62,8 @@ export default async function AdminCaseEdit(props: PageProps<"/admin/cases/[id]"
       )}
 
       <CaseEditor
-        initial={rowToForm(row)}
+        initial={{ ...rowToForm(row, animalPolice.note), animal_police_note: animalPolice.error ? undefined : animalPolice.note }}
+        animalPoliceLoadError={animalPolice.error?.message}
         categoryLabels={labels}
         imagesSlot={
           <CaseImagesPanel caseId={row.id} images={caseImages} loadError={images.error?.message} />

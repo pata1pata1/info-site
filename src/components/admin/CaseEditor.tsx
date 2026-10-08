@@ -5,6 +5,7 @@ import { useActionState, useState, type ReactNode } from "react";
 import type { ActionState } from "@/lib/admin/auth";
 import { saveCase } from "@/lib/admin/case-actions";
 import {
+  ANIMAL_POLICE_NOTE_MAX,
   emptyCase,
   newSourceKey,
   validateCase,
@@ -25,9 +26,11 @@ type Props = {
   categoryLabels: Record<CategorySlug, string>;
   /** 基本情報の直後に表示する「2. 案件画像」（編集画面のみ。独立したフォームのため本文フォームの外に置く） */
   imagesSlot?: ReactNode;
+  /** 「アニマルポリス」の読み込みエラー（このときは欄を編集・保存しない） */
+  animalPoliceLoadError?: string;
 };
 
-export function CaseEditor({ initial, categoryLabels, imagesSlot }: Props) {
+export function CaseEditor({ initial, categoryLabels, imagesSlot, animalPoliceLoadError }: Props) {
   const [state, formAction, pending] = useActionState(saveCase, { ok: false } as ActionState);
   const [v, setV] = useState<CaseFormValues>(initial);
   const [clientErrors, setClientErrors] = useState<string[]>([]);
@@ -54,7 +57,7 @@ export function CaseEditor({ initial, categoryLabels, imagesSlot }: Props) {
   function changeCategory(category: CategorySlug) {
     // カテゴリ固有の項目は引き継がず、共通項目だけ残す
     const base = emptyCase(category);
-    setV((prev) => ({ ...base, slug: prev.slug, title: prev.title, summary: prev.summary, region: prev.region, animal_type: prev.animal_type, current_status: prev.current_status, sources: prev.sources, timeline: prev.timeline, facts: prev.facts }));
+    setV((prev) => ({ ...base, slug: prev.slug, title: prev.title, summary: prev.summary, region: prev.region, animal_type: prev.animal_type, current_status: prev.current_status, sources: prev.sources, timeline: prev.timeline, facts: prev.facts, animal_police_note: prev.animal_police_note }));
   }
 
   function submit(formData: FormData) {
@@ -75,7 +78,7 @@ export function CaseEditor({ initial, categoryLabels, imagesSlot }: Props) {
       <ActionResult state={shownState} />
 
       {/* ── 公開ページの表示順に合わせて並べる ─────────────────────────────
-          1 基本情報 → 2 事案画像 → 3 事件内容（優良事業者は掲載内容） → 4 現在の状況
+          1 基本情報 → 2 事案画像 → アニマルポリス（管理者のみ表示） → 3 事件内容（優良事業者は掲載内容） → 4 現在の状況
           →（公開ページではここに情報提供コメント）→ 5 時系列 → 6 情報源・参考資料 → 7 掲載方針
           → 公開ページに表示しない管理項目 → 保存バー */}
 
@@ -139,6 +142,23 @@ export function CaseEditor({ initial, categoryLabels, imagesSlot }: Props) {
           <p className="text-xs text-slate-500">事案を作成すると、ここで画像を登録できます。</p>
         </Fieldset>
       )}
+
+      <Fieldset legend="アニマルポリス" description="管理者専用の自由記述欄です。公開ページでは、管理者でログインしたときだけ「事件内容」の上に表示されます（一般会員・未ログインには表示されません）。">
+        {v.animal_police_note === undefined ? (
+          <p className="text-xs text-rose-300">
+            読み込みに失敗したため編集できません。Supabase で <code className="font-mono">20261008000002_case_admin_notes.sql</code> を実行済みか確認してください。（{animalPoliceLoadError}）
+          </p>
+        ) : (
+          <textarea
+            value={v.animal_police_note}
+            onChange={(e) => set("animal_police_note", e.target.value)}
+            rows={8}
+            maxLength={ANIMAL_POLICE_NOTE_MAX}
+            aria-label="アニマルポリス"
+            className={`${inputClass} mt-0 resize-y leading-relaxed`}
+          />
+        )}
+      </Fieldset>
 
       <Fieldset
         legend={v.category === "good-business" ? "3. 掲載内容" : "3. 事件内容"}

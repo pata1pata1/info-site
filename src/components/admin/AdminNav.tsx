@@ -9,7 +9,8 @@ const items = [
   { href: "/admin/cases", label: "事案ページ" },
   { href: "/admin/news", label: "お知らせ" },
   { href: "/admin/comments", label: "情報提供コメント" },
-  { href: "/admin/admins", label: "管理者" },
+  { href: "/admin/memos", label: "管理者メモ" },
+  { href: "/admin/admins", label: "管理者追加" },
 ];
 
 export function AdminNav() {

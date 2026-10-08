@@ -26,7 +26,7 @@ export async function CommentSection({ category, slug }: Props) {
           <p className="mb-1 font-mono text-[10px] tracking-[0.2em] text-amber-200/70">CAUTION / ご注意</p>
           この欄にはユーザーから寄せられた情報が掲載されます。
           <br />
-          『調査中』と表示されている情報は、運営側で内容や情報源を確認している段階であり、事実として確認されたものではありません。
+          『調査中』と表示されている情報は運営側で未確認の参考情報となります。
         </aside>
 
         {!configured ? (

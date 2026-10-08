@@ -43,7 +43,15 @@ export type CaseFormValues = {
   sources: SourceForm[];
   timeline: TimelineForm[];
   facts: FactForm[];
+  /**
+   * 「アニマルポリス」欄（管理者専用。cases ではなく case_admin_notes に保存し、admin_save_case には渡さない）。
+   * undefined のときは保存しない（読み込みに失敗した場合に既存の内容を空で上書きしないため）
+   */
+  animal_police_note?: string;
 };
+
+/** 「アニマルポリス」の上限（DB の check 制約と合わせる） */
+export const ANIMAL_POLICE_NOTE_MAX = 10000;
 
 export function todayJst(): string {
   return new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Tokyo" }).format(new Date());
@@ -80,12 +88,13 @@ export function emptyCase(category: CategorySlug): CaseFormValues {
     sources: [],
     timeline: [],
     facts: [],
+    animal_police_note: "",
   };
 }
 
 const bySortOrder = (a: { sort_order: number }, b: { sort_order: number }) => a.sort_order - b.sort_order;
 
-export function rowToForm(row: CaseRow): CaseFormValues {
+export function rowToForm(row: CaseRow, animalPoliceNote = ""): CaseFormValues {
   return {
     id: row.id,
     category: row.category,
@@ -126,6 +135,7 @@ export function rowToForm(row: CaseRow): CaseFormValues {
       source_keys: t.source_keys,
     })),
     facts: [...(row.case_facts ?? [])].sort(bySortOrder).map((f) => ({ body: f.body, source_keys: f.source_keys })),
+    animal_police_note: animalPoliceNote,
   };
 }
 
@@ -196,5 +206,6 @@ export function normalizeCase(v: CaseFormValues): CaseFormValues {
     sources: v.sources.map((s) => ({ ...s, publisher: s.publisher.trim(), title: s.title.trim(), url: s.url.trim() })),
     timeline: v.timeline.map((t) => ({ ...t, event_date: t.event_date.trim(), title: t.title.trim() })),
     facts: v.facts.map((f) => ({ ...f, body: f.body.trim() })),
+    animal_police_note: typeof v.animal_police_note === "string" ? v.animal_police_note.trim() : undefined,
   };
 }

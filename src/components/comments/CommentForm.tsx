@@ -45,16 +45,15 @@ export function CommentForm({ category, slug }: Props) {
 function PostingNotice() {
   return (
     <div className="rounded-lg border border-amber-300/20 bg-amber-400/[0.04] px-4 py-3 text-xs leading-relaxed text-slate-300">
-      <p className="mb-1.5 font-semibold text-amber-100">投稿前にご確認ください</p>
+      <p className="mb-1.5 font-semibold text-amber-100">投稿前にご確認下さい</p>
       <ul className="list-disc space-y-1 pl-4 marker:text-amber-300/60">
         <li>
-          投稿した内容は、すぐに<strong className="text-amber-100">「調査中」として一般公開</strong>されます。
-          運営側による確認前の情報として表示され、確認後にステータスが変わります。
+          投稿した内容は運営側の確認前の情報として<strong className="text-amber-100">「調査中」</strong>の表記の元に一般公開されます。
         </li>
-        <li>個人宅の詳細な住所（番地・部屋番号）、電話番号、家族に関する情報は投稿しないでください。</li>
-        <li>事案と無関係な第三者の個人情報（顔写真・氏名・車のナンバーなど）を含めないでください。</li>
+        <li>個人宅の住所詳細（番地や部屋番号）、電話番号、家族に関する情報は投稿しないで下さい。</li>
+        <li>事案と無関係な第三者の個人情報を含めないで下さい。</li>
         <li>脅迫、暴力や嫌がらせを促す内容、根拠のない誹謗中傷は投稿できません。</li>
-        <li>アップロードする画像は、出典元がわかる場合はご記載ください。</li>
+        <li>アップロードする画像は出典元がわかる場合はご記載下さい。</li>
       </ul>
     </div>
   );
@@ -150,9 +149,7 @@ function CommentFields({ category, slug, state, pending, formAction }: FieldsPro
       <div>
         <label className="flex items-start gap-2 text-xs leading-relaxed text-slate-400">
           <input type="checkbox" name="agreement" required className="mt-0.5 accent-cyan-400" />
-          <span>
-            上記の注意事項を確認しました。投稿内容が「調査中」として公開されること、無関係な個人情報・脅迫・誹謗中傷を含まないこと、添付画像を公開する権利を持っていることに同意します。
-          </span>
+          <span>上記の注意事項を確認しました。</span>
         </label>
         {errors.agreement && <p className={errorClass}>{errors.agreement}</p>}
       </div>

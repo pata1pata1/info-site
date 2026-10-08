@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { requireAdminPage } from "@/lib/admin/auth";
+import { formatMemoDate, listMemos, memoAuthorLabel } from "@/lib/admin/memos";
 
 export default async function AdminDashboard(props: PageProps<"/admin">) {
   const { supabase } = await requireAdminPage("/admin");
@@ -11,12 +12,13 @@ export default async function AdminDashboard(props: PageProps<"/admin">) {
     const { count } = await query;
     return count ?? 0;
   };
-  const [published, drafts, privateCases, investigating, news] = await Promise.all([
+  const [published, drafts, privateCases, investigating, news, { memos }] = await Promise.all([
     count("cases", ["publish_status", "published"]),
     count("cases", ["publish_status", "draft"]),
     count("cases", ["publish_status", "private"]),
     count("comments", ["status", "investigating"]),
     count("news", ["publish_status", "published"]),
+    listMemos(supabase, 3),
   ]);
 
   const cards = [
@@ -44,6 +46,30 @@ export default async function AdminDashboard(props: PageProps<"/admin">) {
           </li>
         ))}
       </ul>
+
+      <section className="panel rounded-xl p-5">
+        <h2 className="text-sm font-bold text-slate-200">最新の管理者メモ</h2>
+        {memos.length === 0 ? (
+          <p className="mt-3 text-xs text-slate-500">メモはまだありません。</p>
+        ) : (
+          <ul className="mt-3 divide-y divide-line">
+            {memos.map((memo) => (
+              <li key={memo.id} className="py-3 first:pt-0">
+                <p className="flex flex-wrap gap-x-3 text-xs">
+                  <span className="font-medium text-slate-300">{memoAuthorLabel(memo)}</span>
+                  <time dateTime={memo.created_at} className="font-mono text-slate-500">
+                    {formatMemoDate(memo.created_at)}
+                  </time>
+                </p>
+                <p className="mt-1 line-clamp-3 whitespace-pre-wrap break-words text-sm leading-relaxed text-slate-200">{memo.body}</p>
+              </li>
+            ))}
+          </ul>
+        )}
+        <Link href="/admin/memos" className="mt-3 inline-block text-xs text-cyan-300 hover:text-cyan-200">
+          すべて見る →
+        </Link>
+      </section>
 
       <section className="panel rounded-xl p-5 text-sm leading-relaxed text-slate-400">
         <h2 className="mb-2 font-bold text-slate-200">日常の運営</h2>

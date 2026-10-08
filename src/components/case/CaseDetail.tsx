@@ -7,6 +7,8 @@ import type { Case, Source } from "@/lib/cases";
 import { formatDate, formatDateJa } from "@/lib/format";
 import { getSiteContent } from "@/lib/cms/content";
 import { getCategory } from "@/lib/site";
+import { getCurrentUser } from "@/lib/supabase/server";
+import { getAnimalPoliceNoteForViewer } from "@/lib/admin/case-admin-notes";
 import { RichText } from "@/components/ui/RichText";
 import { CaseGallery } from "./CaseGallery";
 import { CaseFacts } from "./CaseFacts";
@@ -24,17 +26,27 @@ type Props = {
  * 個別情報ページ共通のテンプレート。
  * パンくず → カテゴリ・ステータス → タイトル → 案件画像ギャラリー → 基本情報（名前・地域・発生日）
  * → 事件内容（優良事業者は「掲載内容」。概要を含む） → 現在の状況 → 情報提供コメント → 時系列 → 情報源・参考資料 → NOTICE / 掲載方針
+ * 時系列・情報源・参考資料はログイン中のみ表示する（未ログイン時は見出しごと出さない）
+ * 「アニマルポリス」は管理者のみ、事件内容の直前に表示する（管理者専用テーブル case_admin_notes から取得）
  */
 export async function CaseDetail({ item, children }: Props) {
   const category = getCategory(item.category);
-  const text = (await getSiteContent()).categories[item.category];
+  const [content, user, animalPoliceNote] = await Promise.all([
+    getSiteContent(),
+    getCurrentUser(),
+    // 管理者でログインしている場合だけ取得する（それ以外は null。取得自体も RLS で管理者に限られる）
+    item.id ? getAnimalPoliceNoteForViewer(item.id) : null,
+  ]);
+  const text = content.categories[item.category];
+  const isLoggedIn = Boolean(user);
   // 動物虐待者情報は人物名、事業者カテゴリは事業者名
   const subjectName = item.category === "animal-abuse" ? item.personName : item.businessName;
   // 発生日は動物虐待者情報の案件データにのみある
   const occurredAt = item.category === "animal-abuse" ? item.occurredAt : undefined;
   // 優良事業者は「事件」ではないため見出しを変える
   const detailHeading = item.category === "good-business" ? { title: "掲載内容", en: "LISTING DETAILS" } : { title: "事件内容", en: "CASE DETAILS" };
-  const sources = item.sources;
+  // 未ログイン時は情報源を渡さず、本文中の [1] などの参照も出さない
+  const sources = isLoggedIn ? item.sources : [];
 
   return (
     <>
@@ -89,8 +101,17 @@ export async function CaseDetail({ item, children }: Props) {
       </section>
 
       <div className="mx-auto max-w-4xl space-y-10 px-4 py-10">
+        {/* 管理者専用。管理者以外・未入力のときはセクション自体を描画しない */}
+        {animalPoliceNote && (
+          <DetailSection title="アニマルポリス" en="ANIMAL POLICE">
+            <div className="panel rounded-xl p-5">
+              <p className="whitespace-pre-wrap break-words text-sm leading-relaxed text-slate-300">{animalPoliceNote}</p>
+            </div>
+          </DetailSection>
+        )}
+
         <DetailSection title={detailHeading.title} en={detailHeading.en}>
-          <CaseFacts item={item} />
+          <CaseFacts item={{ ...item, sources }} />
         </DetailSection>
 
         <DetailSection title="現在の状況" en="CURRENT STATUS">
@@ -106,37 +127,43 @@ export async function CaseDetail({ item, children }: Props) {
         {/* 情報提供コメント（ユーザー投稿）。運営が確認した本文とは区切って表示する */}
         {children && <div className="border-y border-line py-10">{children}</div>}
 
-        <DetailSection title="時系列" en="TIMELINE">
-          <ol className="relative space-y-6 border-l border-line-strong pl-6">
-            {item.timeline.map((event) => (
-              <li key={`${event.date}-${event.title}`} className="relative">
-                <span
-                  className="absolute -left-[29px] top-1.5 h-2.5 w-2.5 rounded-full bg-cyan-300 shadow-[0_0_10px_rgb(103_232_249/0.7)]"
-                  aria-hidden="true"
-                />
-                <p className="font-mono text-xs text-cyan-200/80">
-                  <time dateTime={event.date}>{formatDateJa(event.date)}</time>
-                  {event.dateNote && <span className="ml-1">{event.dateNote}</span>}
-                </p>
-                <p className="mt-1 font-bold text-slate-100">
-                  {event.title}
-                  <SourceRefs ids={event.sourceIds} sources={sources} />
-                </p>
-                {event.description && (
-                  <p className="mt-1 text-sm leading-relaxed text-slate-300">{event.description}</p>
-                )}
-              </li>
-            ))}
-          </ol>
-        </DetailSection>
+        {/* 時系列・情報源はログイン中のみ。未ログイン時は案内も出さず、セクション自体を描画しない */}
+        {isLoggedIn && (
+          <>
+            <DetailSection title="時系列" en="TIMELINE">
+              <ol className="relative space-y-6 border-l border-line-strong pl-6">
+                {item.timeline.map((event) => (
+                  <li key={`${event.date}-${event.title}`} className="relative">
+                    <span
+                      className="absolute -left-[29px] top-1.5 h-2.5 w-2.5 rounded-full bg-cyan-300 shadow-[0_0_10px_rgb(103_232_249/0.7)]"
+                      aria-hidden="true"
+                    />
+                    <p className="font-mono text-xs text-cyan-200/80">
+                      <time dateTime={event.date}>{formatDateJa(event.date)}</time>
+                      {event.dateNote && <span className="ml-1">{event.dateNote}</span>}
+                    </p>
+                    <p className="mt-1 font-bold text-slate-100">
+                      {event.title}
+                      <SourceRefs ids={event.sourceIds} sources={sources} />
+                    </p>
+                    {event.description && (
+                      <p className="mt-1 text-sm leading-relaxed text-slate-300">{event.description}</p>
+                    )}
+                  </li>
+                ))}
+              </ol>
+            </DetailSection>
 
-        <DetailSection title="情報源・参考資料" en="SOURCES">
-          <SourceList sources={sources} />
-          <p className="mt-3 text-xs leading-relaxed text-slate-500">
-            本ページは上記の情報源に記載された内容のみに基づいて作成しています。情報源に記載のない事項は推測で補っていません。
-            リンク先の記事は削除・有料化されている場合があります。
-          </p>
-        </DetailSection>
+            <DetailSection title="情報源・参考資料" en="SOURCES">
+              <SourceList sources={sources} />
+              <p className="mt-3 text-xs leading-relaxed text-slate-500">
+                本ページは上記の情報源や確信的な証拠を元に作成しています。
+                <br />
+                尚、情報源のリンク先の記事は削除・有料化されている場合があります。
+              </p>
+            </DetailSection>
+          </>
+        )}
 
         <CaseNotice text={text.policy} />
       </div>
