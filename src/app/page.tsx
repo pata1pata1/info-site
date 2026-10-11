@@ -2,6 +2,7 @@ import { CategoryCard } from "@/components/home/CategoryCard";
 import { HeroSection } from "@/components/home/HeroSection";
 import { NewsList } from "@/components/home/NewsList";
 import { PrefectureSearchCard } from "@/components/home/PrefectureSearchCard";
+import { ReportContactsSection } from "@/components/home/ReportContactsSection";
 import { SectionHeading } from "@/components/home/SectionHeading";
 import { InfoCardGrid } from "@/components/info/InfoCardGrid";
 import { listCaseSummaries } from "@/lib/cases";
@@ -20,6 +21,8 @@ export default async function Home() {
   return (
     <>
       <HeroSection home={home} />
+
+      <ReportContactsSection />
 
       <section id="categories" className="mx-auto max-w-6xl scroll-mt-20 px-4 pt-12">
         <SectionHeading title={home.categoriesTitle} description={home.categoriesDescription} />
