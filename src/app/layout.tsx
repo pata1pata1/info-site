@@ -20,6 +20,8 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     description: toPlainText(home.description),
     applicationName: home.siteName,
+    // Google Search Console の所有権確認
+    verification: { google: "ixrcXoZGT9zQxP10S1IFnLz4n6gjKPbdcAgSBpjXeDw" },
   };
 }
 
