@@ -3,7 +3,7 @@ import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
 import { getSiteContent } from "@/lib/cms/content";
 import { toPlainText } from "@/lib/richtext";
-import { categories } from "@/lib/site";
+import { categories, siteUrl } from "@/lib/site";
 import "./globals.css";
 
 // 管理画面での保存時は revalidatePath で即時更新する。DB を直接編集した場合もこの間隔で反映される
@@ -12,6 +12,8 @@ export const revalidate = 300;
 export async function generateMetadata(): Promise<Metadata> {
   const { home } = await getSiteContent();
   return {
+    // canonical は各公開ページで相対パスを指定する（ここで指定すると全ページに継承されてしまうため）
+    metadataBase: new URL(siteUrl),
     title: {
       default: `${home.siteName} | ${home.tagline}`,
       template: `%s | ${home.siteName}`,

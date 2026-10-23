@@ -14,7 +14,11 @@ export async function generateMetadata(props: PageProps<"/good-business/[slug]">
   const { slug } = await props.params;
   const item = await getCase("good-business", slug);
   if (!item) return {};
-  return { title: item.title, description: toPlainText(item.summary) };
+  return {
+    title: item.title,
+    description: toPlainText(item.summary),
+    alternates: { canonical: `/good-business/${item.slug}` },
+  };
 }
 
 export default async function Page(props: PageProps<"/good-business/[slug]">) {

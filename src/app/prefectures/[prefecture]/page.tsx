@@ -26,6 +26,7 @@ export async function generateMetadata(props: PageProps<"/prefectures/[prefectur
   return {
     title: `${area.name}の掲載情報`,
     description: `${area.name}に関する動物虐待者情報・悪徳動物関連事業者・優良動物関連事業者の掲載情報の一覧です。`,
+    alternates: { canonical: `/prefectures/${area.slug}` },
   };
 }
 

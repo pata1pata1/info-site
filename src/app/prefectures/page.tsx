@@ -7,6 +7,7 @@ import { OTHER_AREA, prefectureAreas } from "@/lib/prefectures";
 export const metadata: Metadata = {
   title: "都道府県から探す",
   description: "掲載情報を都道府県別に一覧できます。動物虐待者情報・悪徳動物関連事業者・優良動物関連事業者のすべてを含みます。",
+  alternates: { canonical: "/prefectures" },
 };
 
 export default async function Page() {

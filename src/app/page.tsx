@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { CategoryCard } from "@/components/home/CategoryCard";
 import { HeroSection } from "@/components/home/HeroSection";
 import { NewsList } from "@/components/home/NewsList";
@@ -8,6 +9,8 @@ import { InfoCardGrid } from "@/components/info/InfoCardGrid";
 import { listCaseSummaries } from "@/lib/cases";
 import { getPublishedNews, getSiteContent } from "@/lib/cms/content";
 import { categories } from "@/lib/site";
+
+export const metadata: Metadata = { alternates: { canonical: "/" } };
 
 export default async function Home() {
   const [content, recentItems, news, counts] = await Promise.all([

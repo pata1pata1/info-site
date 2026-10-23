@@ -7,6 +7,9 @@ export const siteConfig = {
     "スキャムオブザーブは、動物に危害を加える動物虐待者に関する情報や、動物関連事業者（ペットショップ・ブリーダー・保護団体など）の評判・実態に関する情報を掲載する情報サイトです。",
 };
 
+/** 検索エンジン向けの正規 URL（metadataBase・canonical・sitemap・robots.txt）の基準 */
+export const siteUrl = "https://info-site-chi.vercel.app";
+
 export type CategorySlug = "animal-abuse" | "bad-business" | "good-business";
 
 export type Category = {

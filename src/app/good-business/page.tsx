@@ -5,7 +5,7 @@ import { toPlainText } from "@/lib/richtext";
 
 export async function generateMetadata(): Promise<Metadata> {
   const text = (await getSiteContent()).categories["good-business"];
-  return { title: text.title, description: toPlainText(text.description) };
+  return { title: text.title, description: toPlainText(text.description), alternates: { canonical: "/good-business" } };
 }
 
 export default function Page() {
